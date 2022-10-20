@@ -1,0 +1,21 @@
+
+config {
+  type: "table",
+  tags: 'M13'
+}
+
+SELECT 
+    Name,
+    Id,   
+    CAST(CAST(IF(PersonId__c='nd' OR PersonId__c LIKE 'SEDE%' OR PersonId__c LIKE 'SPECIAL%', NULL, PersonId__c) AS INT) AS STRING FORMAT '00000000') AS PersonId__c, 
+    JobCode__c, 
+    JobDescription__c, 
+    ShopCode__c, 
+    ShopName__c, 
+    CAST(CreatedDate AS  TIMESTAMP) AS CreatedDate, 
+    CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate, 
+    isActive, 
+    ManagerPersonId__c, 
+    ManagerCurrentShopCode__c, 
+    ManagerCurrentShopName__c 
+FROM ${ref('User')}

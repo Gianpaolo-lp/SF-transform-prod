@@ -1,6 +1,6 @@
 {
     "warehouse": "bigquery",
-    "defaultSchema": "dataform",
+    "defaultSchema": "SF_Trasformation",
     "assertionSchema": "dataform_assertions",
     "defaultDatabase": "lp-datalake-prod"
 }

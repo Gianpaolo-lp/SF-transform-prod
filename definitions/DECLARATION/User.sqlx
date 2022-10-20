@@ -1,0 +1,8 @@
+config {
+  type: "declaration",
+  database: "lp-datalake-prod",
+  schema: "Salesforce",
+  name: "User",
+}
+
+
