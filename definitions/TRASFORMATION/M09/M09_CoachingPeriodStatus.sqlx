@@ -1,0 +1,63 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    ManagerPersonId__c,
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    CASE 
+        WHEN ClosureDate__c NOT IN ('', 'null') THEN CAST(SUBSTR(ClosureDate__c, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS ClosureDate__c,
+    CoachingPeriod__c,
+    Name,
+    CreatedById,
+    LastModifiedById,
+    OwnerId,
+    Priority1__c,
+    Priority2__c,
+    Priority3__c,
+    RecordId__c,
+    ReviewDate__c,
+    SA_ManagerPersonId__c,
+    SaleAssistantComment__c,
+    SaleAssistantOverallEvaluation__c,
+    SaleAssistantStatus__c,
+    Source__c,
+    StoreManagerComment__c,
+    StoreManagerOverallEvaluation__c,
+    StoreManagerStatus__c,
+    Priority1Title__c,
+    Priority2Title__c,
+    Priority3Title__c,
+    KPI1__c,
+    KPI2__c,
+    KPI3__c,
+    KPI4__c,
+    KPI5__c,
+    KPI6__c,
+    KPI7__c,
+    KPI8__c,
+    KPI9__c,
+    KPI10__c,
+    KPI3Title__c,
+    KPI4Title__c,
+    KPI5Title__c,
+    KPI6Title__c,
+    KPI7Title__c,
+    KPI8Title__c,
+    KPI9Title__c,
+    KPI10Title__c,
+    SaleAssistant__r_PersonId__c,
+    SaleAssistantShopCode__c,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('CoachingPeriodStatus__c')}

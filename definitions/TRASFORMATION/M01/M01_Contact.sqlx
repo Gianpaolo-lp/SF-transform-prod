@@ -1,0 +1,141 @@
+config {
+  type: "table",
+  tags: "M01"
+}
+
+
+SELECT	
+    Unionid,					
+    Source,
+    AccountId,			
+    RegistrationStore,	
+    CASE WHEN AcquisitionDate = '' THEN NULL	
+    ELSE CAST(AcquisitionDate AS DATE) END AS AcquisitionDate,				
+    AgeRange,			
+    CASE WHEN Birthdate = '' THEN NULL	
+    ELSE CAST(Birthdate AS DATE) END AS Birthdate,
+    CountryOfBirth,
+    Fax,
+    Phone,
+    Canceled,
+    Id,
+    CreatedById,
+    CASE WHEN CreatedDate = '' THEN NULL
+    ELSE CAST(CreatedDate AS TIMESTAMP) END AS CreatedDate,
+    CASE WHEN DateOfFirstPurchase = '' THEN NULL
+    ELSE CAST(DateOfFirstPurchase AS DATE) END AS DateOfFirstPurchase,
+    CASE WHEN DateOfLastPurchase = '' THEN NULL
+    ELSE CAST(DateOfLastPurchase AS DATE) END AS DateOfLastPurchase,
+    CASE WHEN DateOfLastVisit = '' THEN NULL
+    ELSE CAST(DateOfLastVisit AS DATE) END AS DateOfLastVisit,
+    Deceased,
+    CASE
+    WHEN IsDeleted = 'TRUE' THEN '1'
+    WHEN IsDeleted = 'FALSE' THEN '0'
+    END AS IsDeleted,
+    Discount,
+    CASE WHEN DiscountPerc = '' THEN 0
+    ELSE CAST(SPLIT(DiscountPerc,'.')[OFFSET(0)] AS INT) END AS DiscountPerc,
+    CASE WHEN DiscountPercWW = '' THEN 0
+    ELSE CAST(SPLIT(DiscountPercWW,'.')[OFFSET(0)] AS INT) END AS DiscountPercWW,
+    Email,
+    EmployeeFlag,
+    FirstName,
+    FirstNameLocal,
+    FirstNameLocalExtra,
+    Name,
+    Gender,
+    GoldenRecord,
+    HomePhone,
+    CASE WHEN LastActivityDate = '' THEN NULL
+    ELSE CAST(LastActivityDate AS DATE) END AS LastActivityDate,
+    LastModifiedById,
+    CASE WHEN LastModifiedDate = '' THEN NULL
+    ELSE CAST(LastModifiedDate AS TIMESTAMP) END AS LastModifiedDate,
+    LastName,
+    LastNameLocal,
+    LastNameLocalExtra,
+    LastCURequestDate,
+    LastCUUpdateDate,
+    MailingCity,
+    MailingCountry,
+    MailingState,
+    MailingPostalCode,
+    MarketingConsent,
+    MasterRecordId,
+    MobilePhone,
+    Nationality,
+    NationalityProvince,
+    OtherPhone,
+    OwnerId,
+    Profession,
+    ProfilingConsent,
+    Salutation,
+    State,
+    Status,
+    CASE WHEN SystemModstamp = '' THEN NULL
+    ELSE CAST(SystemModstamp AS TIMESTAMP) END AS SystemModstampmModstamp,
+    Title,
+    VIP,
+    SECONDSALEASSISTANTOFCOMP,
+    RolId,
+    SapId,
+    CASE
+    WHEN NaturalPerson = 'TRUE' THEN '1'
+    WHEN NaturalPerson = 'FALSE' THEN '0'
+    END AS NaturalPerson,
+    PassportNumber,
+    CustomerStatus,
+    CustomerLanguage,
+    CASE WHEN LastConsentUpdate= '' THEN NULL
+    ELSE CAST(LastConsentUpdate AS DATE) END AS LastConsentUpdate,
+    TaxIdNumber,
+    PreferredContactMethod,
+    GenericCustomer,
+    FiscalCode,
+    VatNumber,
+    CASE
+    WHEN CustomerDeceased = 'TRUE'    THEN '1'
+    WHEN CustomerDeceased = 'FALSE'    THEN '0'
+    END AS CustomerDeceased,
+    RecordType,
+    CASE
+    WHEN ACTIVEDISCOUNT = 'TRUE' THEN '1'
+    WHEN ACTIVEDISCOUNT = 'FALSE' THEN '0'
+    END AS ACTIVEDISCOUNT,
+    CASE WHEN DISCOUNTEXPIRATIONDATE = '' THEN NULL
+    ELSE CAST(DISCOUNTEXPIRATIONDATE AS TIMESTAMP) END AS DISCOUNTEXPIRATIONDATE,
+    CASE
+    WHEN UnreachableAddress = 'TRUE'        THEN '1'
+    WHEN UnreachableAddress = 'FALSE'    THEN '0'
+    END AS UnreachableAddress,
+    CASE
+    WHEN DoubleOptInConfirmation = 'TRUE' THEN '1'
+    WHEN DoubleOptInConfirmation = 'FALSE' THEN '0'
+    END AS DoubleOptInConfirmation,
+    CelebrityFlag,
+    WeChatSource,
+    NewsletterConsent,
+    WeChatStore,
+    CASE
+    WHEN TopFamily = 'TRUE'        THEN '1'
+    WHEN TopFamily = 'FALSE'         THEN '0'
+    END AS TopFamily,
+    CASE
+    WHEN OneToOneConsent = 'TRUE'     THEN '1'
+    WHEN OneToOneConsent = 'FALSE'    THEN '0'
+    END AS OneToOneConsent,
+    ClusterGroup,
+    ClusterValue,
+    Celebrity,
+    CelebrityOther,
+    RegistrationEvent,
+    SFSource,
+    GuestType,
+    PIPLConsent,
+    LastEvent,
+    HighPotentialClienteling__c,
+    CAST(LastModifiedDate__c AS TIMESTAMP) AS LastModifiedDate__c,
+
+FROM ${ref('Contact_S')} inner join ${ref('Contact_S1')} USING(Id)
+WHERE RecordType_DeveloperName in ('Customer','Prospect')

@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  tags: "M10"
+}
+
+SELECT
+    ID_MOV_DOC  AS MovementDocumentId__c,
+    NEGZ_COD AS Store__c,
+    COD_OGG AS Product__c,
+    COD_CLRE AS ProductColor__c,
+    COD_OGG SeasonCode__c,
+    COD_TG AS SizeCode__c,
+    QTA AS Quantity__c,
+    COD_CAU_MOV AS MovementReasonCode__c,
+    ID_CONSIGNMENT_COD AS MovementIdCode__c,
+    CAST(DATA_MOV AS DATE) AS MovementDate__c,
+    CLIENTE_COD AS Guest__c,
+    MOTIVO_CONSIGNMENT_COD AS ConsignmentReasonCode__c,
+    SA_PERSONID_EXT_COD AS SaleAssistant__c,
+    CAST(RETAIL_VAL AS INT) AS GrossRetailValue__c,
+    CAST(RETAIL_VAL_SZ_IVA AS INT) AS NetRetailValue__c,
+    SORGENTE_DATI_COD AS SourceCode__c,
+    VALUTA_COD AS CurrencyCode,
+    SOTTO_STAGIONALITA_COD AS Seasonality
+FROM ${ref('dat_movimenticons')}
+WHERE CAST(varz_dta AS DATE) >= CURRENT_DATE()-3

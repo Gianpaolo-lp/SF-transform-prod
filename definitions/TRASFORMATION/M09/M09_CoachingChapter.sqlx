@@ -1,0 +1,49 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    AreaNumber__c,
+    ChapterNumber__c,
+    CoachingArea__c,
+    CoachingAreaText__c,
+    CoachingAreaTextIT__c,
+    CoachingAreaTextJA__c,
+    CoachingAreaTextKO__c,
+    CoachingAreaTextZHHANS__c,
+    CoachingAreaTextZHHANT__c,
+    CoachingChapterCode__c,
+    Name,
+    NameIT__c,
+    NameJA__c,
+    NameKO__c,
+    NameZHHANS__c,
+    NameZHHANT__c,
+    CreatedById,
+    REPLACE(Description__c, '\\n', '') AS Description__c,
+    REPLACE(DescriptionAttitudes__c, '\\n', '') AS DescriptionAttitudes__c,
+    REPLACE(DescriptionAttitudesIT__c, '\\n', '') AS DescriptionAttitudesIT__c,
+    REPLACE(DescriptionAttitudesJA__c, '\\n', '') AS DescriptionAttitudesJA__c,
+    REPLACE(DescriptionAttitudesKO__c, '\\n', '') AS DescriptionAttitudesKO__c,
+    REPLACE(DescriptionAttitudesZHHANS__c, '\\n', '') AS DescriptionAttitudesZHHANS__c,
+    REPLACE(DescriptionAttitudesZHHANT__c, '\\n', '') AS DescriptionAttitudesZHHANT__c,
+    REPLACE(DescriptionIT__c, '\\n', '') AS DescriptionIT__c,
+    REPLACE(DescriptionJA__c, '\\n', '') AS DescriptionJA__c,
+    REPLACE(DescriptionKO__c, '\\n', '') AS DescriptionKO__c,
+    REPLACE(DescriptionZHHANS__c, '\\n', '') AS DescriptionZHHANS__c,
+    REPLACE(DescriptionZHHANT__c, '\\n', '') AS DescriptionZHHANT__c,
+    LastModifiedById,
+    noEvaluation__c,
+    OwnerId,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('CoachingChapter__c')}

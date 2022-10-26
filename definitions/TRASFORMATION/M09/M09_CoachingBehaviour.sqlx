@@ -1,0 +1,43 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    BehaviourNumber__c,
+    ChapterNumber__c,
+    CoachingAreaText__c,
+    CoachingAreaTextIT__c,
+    CoachingAreaTextJA__c,
+    CoachingAreaTextKO__c,
+    CoachingAreaTextZHHANS__c,
+    CoachingAreaTextZHHANT__c,
+    CoachingBehaviourCode__c,
+    Name,
+    CoachingChapter__c,
+    CoachingChapterText__c,
+    CoachingChapterTextIT__c,
+    CoachingChapterTextJA__c,
+    CoachingChapterTextKO__c,
+    CoachingChapterTextZHHANS__c,
+    CoachingChapterTextZHHANT__c,
+    CreatedById,
+    Description__c,
+    REPLACE(DescriptionIT__c, '\\n', '') AS DescriptionIT__c,
+    REPLACE(DescriptionJA__c, '\\n', '') AS DescriptionJA__c,
+    REPLACE(DescriptionKO__c, '\\n', '') AS DescriptionKO__c,
+    REPLACE(DescriptionZHHANS__c, '\\n', '') AS DescriptionZHHANS__c,
+    REPLACE(DescriptionZHHANT__c, '\\n', '') AS DescriptionZHHANT__c,
+    LastModifiedById,
+    OwnerId,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('CoachingBehaviour__c')}

@@ -1,0 +1,27 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    CoachingAreaCode__c,
+    Name,
+    NameIT__c,
+    NameJA__c,
+    NameKO__c,
+    NameZHHANS__c,
+    NameZHHANT__c,
+    CreatedById,
+    LastModifiedById,
+    OwnerId,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('CoachingArea__c')}

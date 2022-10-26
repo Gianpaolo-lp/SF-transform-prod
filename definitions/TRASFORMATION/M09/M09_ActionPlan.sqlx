@@ -1,0 +1,33 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('','null') THEN CAST(SUBSTR(CreatedDate,1,19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('','null') THEN CAST(SUBSTR(LastModifiedDate,1,19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    Name,
+    CreatedById,
+    CASE 
+        WHEN EndDate__c NOT IN ('', 'null') THEN CAST(EndDate__c AS DATE)
+        ELSE NULL 
+        END AS EndDate__c,
+    isCompleted__c,
+    LastModifiedById,
+    Note__c,
+    OwnerId,
+    Period__c,
+    CASE
+        WHEN StartDate__c NOT IN ('', 'null') THEN CAST(StartDate__c AS DATE)
+        ELSE NULL 
+        END AS StartDate__c,
+    PersonId__c,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('ActionPlan__c')}

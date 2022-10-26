@@ -1,0 +1,30 @@
+config {
+  type: "incremental",
+  tags: "M09"
+}
+
+SELECT
+    Id,
+    CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS CreatedDate,
+    CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP)
+        ELSE NULL 
+        END AS LastModifiedDate,
+    Answer__c,
+    Name,
+    CoachingBehaviour__c,
+    CoachingPeriod__c,
+    REPLACE(Comment__c, '\\n', '') AS Comment__c,
+    CreatedById,
+    EmailSA__c,
+    EmailSM__c,
+    IdSA__c,
+    LastModifiedById,
+    OwnerId,
+    PersonId__c,
+    SaleAssistantRole__c,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('CoachingAnswer__c')}

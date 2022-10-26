@@ -1,0 +1,36 @@
+config {
+  type: "table",
+  tags: "M01"
+}
+
+SELECT
+  ChannelKey,
+  Contact,
+  ContactChannel,
+  CreatedById,
+  CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+  CASE
+  WHEN DoNotContact = 'TRUE'   THEN '1'
+  WHEN DoNotContact = 'FALSE'  THEN '0'
+  END AS DoNotContact,
+  Email,
+  Id,
+  IsDeleted,
+  LastModifiedById,
+  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+  CASE
+  WHEN MainChannel = 'TRUE'    THEN '1'
+  WHEN MainChannel = 'FALSE'   THEN '0'
+  END AS MainChannel,
+  Name,
+  OwnerId,
+  Phone,
+  PhonePrefix,
+  Source,
+  CAST(SystemModstamp AS TIMESTAMP) AS SystemModstamp,
+  CASE
+  WHEN ToDelete = 'TRUE' THEN '1'
+  WHEN ToDelete = 'FALSE' THEN '0'
+  END AS ToDelete,
+  Type
+FROM ${ref('ContactChannel__c')}
