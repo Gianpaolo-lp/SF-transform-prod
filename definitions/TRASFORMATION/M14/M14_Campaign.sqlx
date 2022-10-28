@@ -1,0 +1,74 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+WITH M14_CAMPAIGN1 AS (
+    SELECT 
+        UTMParameter__c,
+        FakeCampaign__c,
+        OmitClick__c,
+        ABTest__c,
+        ActualCost,
+        AltFields__c,
+        BudgetedCost,
+        CampaignCode__c,
+        Channel__c,
+        Code__c,
+        ControlGroup__c,
+        CreatedById,
+        CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+        DelightingDescription__c,
+        Delighting__c,
+        Description,
+        DescriptionEN__c,
+        DescriptionJA__c,
+        DescriptionKO__c,
+        DescriptionZHHANS__c,
+        DescriptionZHHANT__c,
+        DestinationForAction__c,
+        CAST(EndDate AS DATE) AS EndDate,
+        Icon__c,
+        Id,
+        Language__c,
+        LastModifiedById,
+        CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+        Name,
+        NameEN__c,
+        NameJA__c,
+        NameKO__c,
+        NameZHHANS__c,
+        NameZHHANT__c,
+        NumberOfContacts,
+        NumberOfResponses,
+        Order__c,
+        Other__c,
+        ParentId,
+        ReadOnly__c,
+        RecordTypeId,
+        Recurring__c,
+        Region__c,
+        SetAsConfirmed__c,
+        CAST(StartDate AS DATE) AS StartDate,
+        Status,
+        StoreChannel__c,
+        SubType__c,
+        Theme__c,
+        Type,
+        /* in order to create the history */
+        CURRENT_DATE() AS INPUT_DATE
+    FROM ${ref('Campaign')}
+    WHERE RecordTypeName = 'Marketing Campaign'
+    /* where per escludere i campi della deleted */ AND 
+    (CAST(IsDeleted AS BOOL) = FALSE OR CAST(DoNotDownload__c AS BOOL) = FALSE)
+)
+SELECT 
+    DISTINCT
+    FIRST_VALUE(Id) OVER(PARTITION BY Id ORDER BY LastModifiedDate DESC) AS Id, 
+    * EXCEPT(Id),
+    CASE    
+        WHEN Channel__c = 'CLIENTELINGLIST' AND CAST(Other__c AS BOOL) = false THEN 'true'   
+        WHEN Channel__c = 'EMAIL' AND CAST(Recurring__c AS BOOL) = true THEN 'true'
+        ELSE 'false'
+        END AS Flag_Recurring
+FROM M14_CAMPAIGN1

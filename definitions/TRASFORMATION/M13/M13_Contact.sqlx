@@ -1,0 +1,62 @@
+config {
+  type: "incremental",
+  tags: 'M13'
+}
+
+SELECT 
+DISTINCT
+    S.UnionID,
+    MarketingLanguage__c,
+    S.WeChatSource,
+    RegistrationStore,
+    S.OwnerID,
+    SECONDSALEASSISTANTOFCOMP AS SecondSAoC_ID,
+    GoldenRecord,
+    Canceled,
+    Id,
+    CAST(RolId AS STRING) AS RolId__c,
+    CAST(SUBSTR(S.CreatedDate, 1, 23) AS TIMESTAMP) AS CreatedDate,
+    CAST(SUBSTR(S.LastModifiedDate, 1, 23) AS TIMESTAMP) AS LastModifiedDate,
+    GuestType,
+    Celebrity,
+    CelebrityOther,
+    Occupation__c,
+    OccupationOther__c,
+    Industry__c,
+    IndustryOther__c,
+    HobbiesAndInterests__c,
+    HobbiesAndInterestsOther__c,
+    CompanyName__c,
+    Philanthropy__c,
+    PhilanthropyCharity__c,
+    PhilanthropyClub__c,
+    SoftBeverages__c,
+    SoftBeveragesOther__c,
+    SoftBeveragesDislikes__c,
+    RegularBusinessDestinations__c,
+    RegularHolidayDestinations__c,
+    CoffeeTea__c,
+    CoffeeTeaOther__c,
+    CoffeeTeaDislikes__c,
+    CarbonatedBeveragesOther__c,
+    CarbonatedBeveragesDislikes__c,
+    AlcoholicBeverages__c,
+    AlcoholicBeveragesDislikes__c,
+    TypeOfService__c,
+    TypeOfServiceOther__c,
+    EngagementSuggestions__c,
+    EngagementSuggestionsOther__c,
+    EngagementSuggestionsWhy__c,
+    Partner__c,
+    Children__c,
+    Grandchildren__c,
+    Pets__c,
+    S.AccountId,
+    SecondDedicatedStore,
+    SECONDSALEASSISTANTOFCOMP AS SecondSaleAssistantOfCompetence,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('Contact_S')} S
+left join ${ref('Contact_S1')} S1 using(Id) 
+--left join ${ref('Contact')} C using(Id) 
+WHERE CAST(S.LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+

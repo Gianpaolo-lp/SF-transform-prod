@@ -1,0 +1,66 @@
+config {
+  type: "incremental",
+  tags: 'M13'
+}
+
+SELECT 
+DISTINCT
+    AccountId,
+    CASE 
+        WHEN ActivityDate = '' THEN NULL
+        ELSE CAST(ActivityDate AS DATE)
+        END AS ActivityDate,
+    CHECKINMISSEDPURCHASE__C,
+    CHECKINSTORE__R_TAXISHOPCODE__C,
+    CLIENTELINGLIST__C,
+    CONTACTEDTHROUGHGAISHO__C,
+    Campaign__c,
+    ConsignmentFirstStatusUpdate__c,
+    ConsignmentSecondStatusUpdate__c,
+    ConsignmentStatus__c,
+    Consignment__c,
+    ContactCommunicationOk__c,
+    ContactCommunication__c,
+    ContactRolId__c,
+    ContactedThroughConcierge__c,
+    CreatedById,
+    CASE 
+        WHEN CreatedDate = '' THEN NULL
+        ELSE CAST(CreatedDate AS TIMESTAMP)
+        END AS CreatedDate,
+    REPLACE(DESCRIPTION,'\\n', '') AS DESCRIPTION,
+    EVENTCONFIRMATION__C,
+    CASE 
+        WHEN EndDateTime__c = '' THEN NULL
+        ELSE CAST(EndDateTime__c AS DATE)
+        END AS EndDateTime__c,
+    ExperienceRating__c,
+    HistoryKey__c,
+    Id,
+    JKIndividualEmailResult__c,
+    LastModifiedByID,
+    CASE 
+        WHEN LastModifiedDate = '' THEN NULL
+        ELSE CAST(LastModifiedDate AS TIMESTAMP)
+        END AS LastModifiedDate,
+    MagnewsTemplate__c,
+    OwnerId,
+    RecordTypeId,
+    RemoteSellingFirstStatusUpdate__c,
+    RemoteSellingSecondStatusUpdate__c,
+    RemoteSellingStatus__c,
+    RemoteSelling__c,
+    CASE 
+        WHEN StartDateTime__c = '' THEN NULL
+        ELSE CAST(StartDateTime__c AS DATE)
+        END AS StartDateTime__c,
+    Status,
+    Subject,
+    Subtext__c,
+    Type,
+    WhoId,
+    isFullDay__c,
+    newHistoryKey__c ,
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('Task_S1')}
+WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
