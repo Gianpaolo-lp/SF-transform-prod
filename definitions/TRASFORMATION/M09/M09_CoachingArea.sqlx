@@ -22,6 +22,5 @@ SELECT
     NameZHHANT__c,
     CreatedById,
     LastModifiedById,
-    OwnerId,
-    CURRENT_DATE() AS INS_DTA
+    OwnerId
 FROM ${ref('CoachingArea__c')}

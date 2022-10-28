@@ -17,6 +17,5 @@ SELECT
     Name,
     REPLACE(CoachingAnswer__c, '\\n', '') AS CoachingAnswer__c,
     CreatedById,
-    LastModifiedById,
-    CURRENT_DATE() AS INS_DTA
+    LastModifiedById
 FROM ${ref('ActionPlanDetails__c')}

@@ -28,6 +28,5 @@ SELECT
     --TitleZHHANS__c,
     REPLACE(TitleZHHANS__c, '\\n', '') AS TitleZHHANS__c,
     --TitleZHHANT__c
-    REPLACE(TitleZHHANT__c, '\\n', '') AS TitleZHHANT__c,
-    CURRENT_DATE() AS INS_DTA
+    REPLACE(TitleZHHANT__c, '\\n', '') AS TitleZHHANT__c
 FROM ${ref('CoachingTip__c')}

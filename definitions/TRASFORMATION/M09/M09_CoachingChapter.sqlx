@@ -44,6 +44,5 @@ SELECT
     REPLACE(DescriptionZHHANT__c, '\\n', '') AS DescriptionZHHANT__c,
     LastModifiedById,
     noEvaluation__c,
-    OwnerId,
-    CURRENT_DATE() AS INS_DTA
+    OwnerId
 FROM ${ref('CoachingChapter__c')}

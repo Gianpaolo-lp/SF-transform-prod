@@ -28,6 +28,5 @@ SELECT
         WHEN StartDate__c NOT IN ('', 'null') THEN CAST(StartDate__c AS DATE)
         ELSE NULL 
         END AS StartDate__c,
-    PersonId__c,
-    CURRENT_DATE() AS INS_DTA
+    PersonId__c
 FROM ${ref('ActionPlan__c')}

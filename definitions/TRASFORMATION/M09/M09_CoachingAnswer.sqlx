@@ -25,6 +25,5 @@ SELECT
     LastModifiedById,
     OwnerId,
     PersonId__c,
-    SaleAssistantRole__c,
-    CURRENT_DATE() AS INS_DTA
+    SaleAssistantRole__c
 FROM ${ref('CoachingAnswer__c')}

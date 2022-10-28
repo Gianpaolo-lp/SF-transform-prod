@@ -58,6 +58,5 @@ SELECT
     KPI9Title__c,
     KPI10Title__c,
     SaleAssistant__r_PersonId__c,
-    SaleAssistantShopCode__c,
-    CURRENT_DATE() AS INS_DTA
+    SaleAssistantShopCode__c
 FROM ${ref('CoachingPeriodStatus__c')}

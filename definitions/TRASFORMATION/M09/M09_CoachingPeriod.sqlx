@@ -32,6 +32,5 @@ SELECT
         END AS StartDate__c,
     Status__c,
     CurrentYear__c,
-    NextYear__c,
-    CURRENT_DATE() AS INS_DTA
+    NextYear__c
 FROM ${ref('CoachingPeriod__c')}
