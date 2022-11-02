@@ -1,6 +1,5 @@
 config {
-  type: "table",
-  tags: "CHECKS"
+  type:"assertion"
 }
 
 WITH COUNTCHECK AS (

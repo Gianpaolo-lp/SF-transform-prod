@@ -1,9 +1,18 @@
 {
-    "environments": [
+  "environments": [
+    {
+      "name": "Coaching_Production",
+      "configOverride": {},
+      "schedules": [
         {
-            "name": "production",
-            "configOverride": {},
-            "gitRef": "master"
+          "name": "Coaching",
+          "cron": "0 5 * * *",
+          "tags": [
+            "M09"
+          ]
         }
-    ]
+      ],
+      "gitRef": "master"
+    }
+  ]
 }

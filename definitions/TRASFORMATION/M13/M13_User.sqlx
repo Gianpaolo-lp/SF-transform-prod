@@ -19,3 +19,4 @@ SELECT
     ManagerCurrentShopCode__c, 
     ManagerCurrentShopName__c 
 FROM ${ref('User')}
+WHERE cast(LastModifiedDate AS DATE) >= CURRENT_DATE() - 5
