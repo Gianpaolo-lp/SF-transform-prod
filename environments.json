@@ -1,7 +1,7 @@
 {
   "environments": [
     {
-      "name": "Coaching_Production",
+      "name": "production",
       "configOverride": {},
       "schedules": [
         {
