@@ -135,15 +135,15 @@ SELECT
   WHEN TopFamily = 'TRUE'        THEN '1'
   WHEN TopFamily = 'FALSE'         THEN '0'
   END AS TopFamily,
-  S.Unionid,
+  S1.Unionid,
   CASE
-  WHEN S.UnreachableAddress = 'TRUE'        THEN '1'
-  WHEN S.UnreachableAddress = 'FALSE'    THEN '0'
+  WHEN S1.UnreachableAddress = 'TRUE'        THEN '1'
+  WHEN S1.UnreachableAddress = 'FALSE'    THEN '0'
   END AS UnreachableAddress,
-  S.VatNumber,
-  S.VIP,
-  S.WeChatSource,
-  S.WeChatStore, 
+  S1.VatNumber,
+  S1.VIP,
+  S1.WeChatSource,
+  S1.WeChatStore, 
 
-FROM ${ref('Contact_S')} S inner join ${ref('Contact_S1')} USING(Id)
+FROM ${ref('Contact_S')} S inner join ${ref('Contact_S1')} S1  USING(Id)
 WHERE RecordType_DeveloperName in ('Customer','Prospect')
