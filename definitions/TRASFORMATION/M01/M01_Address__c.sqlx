@@ -1,6 +1,7 @@
 config {
   type: "table",
-  tags: "M01"
+  tags: "M01",
+  dependencies:['Trafficlight']
 }
 
 SELECT
