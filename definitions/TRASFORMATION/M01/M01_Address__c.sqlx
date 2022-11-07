@@ -44,4 +44,4 @@ SELECT
     WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
     END AS ToDelete*/
 FROM ${ref('Address__c')}
-WHERE MainAddress = '1'
+WHERE UPPER(MainAddress) = 'TRUE'
