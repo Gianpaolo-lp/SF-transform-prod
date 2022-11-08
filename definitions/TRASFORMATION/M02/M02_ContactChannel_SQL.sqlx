@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+
+SELECT
+  ChannelKey as ChannelKey__c,
+  --Contact as Contact__c,
+  --ContactChannel as ContactChannel__c,
+  --CreatedById,
+  --CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+  CASE
+      WHEN UPPER(DoNotContact) = 'TRUE'   THEN '1'
+      WHEN UPPER(DoNotContact)  = 'FALSE'  THEN '0'
+    END AS DoNotContact__c,
+  Email as Email__c,
+  --Id,
+  --IsDeleted,
+  --LastModifiedById,
+  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+  CASE
+      WHEN UPPER(MainChannel) = 'TRUE'    THEN '1'
+      WHEN UPPER(MainChannel) = 'FALSE'   THEN '0'
+    END AS MainChannel__c,
+  --Name,
+  --OwnerId,
+  Phone as Phone__c,
+  PhonePrefix as PhonePrefix__c,
+  Contact__r_SapId__c,
+  Source as Source__c,
+  --CAST(SystemModstamp AS TIMESTAMP) AS SystemModstamp,
+  CASE
+      WHEN ToDelete = 'TRUE' THEN '1'
+      WHEN ToDelete = 'FALSE' THEN '0'
+    END AS ToDelete__c,
+  Type as Type__c
+FROM ${ref('ContactChannel__c')} 
+WHERE(Source = 'WeChat' OR LastModifiedDate >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))
+  AND Contact <> ''
+  AND LastModifiedById <> 'SA'
+  AND UPPER(MainChannel) = 'TRUE'
+

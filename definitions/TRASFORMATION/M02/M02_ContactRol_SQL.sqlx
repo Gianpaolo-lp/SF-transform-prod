@@ -1,0 +1,19 @@
+config {
+  type: "table",
+  tags: 'M02',
+  dependencies:['TrafficLight']
+}
+
+SELECT
+RolId as RolId__C,
+SapId as SapId__c,
+CASE
+  WHEN UPPER(ToDelete ) IN ('TRUE', 'T')    THEN '1'
+  WHEN UPPER(ToDelete ) IN ('FALSE', 'F')    THEN '0'
+  END AS ToDelete__c,
+LastModifiedDate
+FROM ${ref('Contact_S')} left join ${ref('Contact_S1')} using(Id)
+WHERE (Source = 'WeChat' OR CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE(), ' ', '20:15:00 UTC') AS TIMESTAMP))
+  AND SapId <> ''
+  AND LastModifiedById <> 'SAS'
+  AND RecordType_DeveloperName in ('Customer','Prospect')

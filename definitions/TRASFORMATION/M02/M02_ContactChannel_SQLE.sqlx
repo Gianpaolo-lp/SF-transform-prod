@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+SELECT 
+	*
+FROM ${ref('M02_ContactChannel_SQL')}
+WHERE Contact__r_SapId__c IN (
+	SELECT DISTINCT
+		Contact__r_SapId__c 
+	FROM ${ref('M02_ContactChannel_SQL')} 
+	WHERE LastModifiedDate >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP)
+
+)

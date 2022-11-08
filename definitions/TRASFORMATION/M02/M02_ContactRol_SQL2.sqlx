@@ -1,0 +1,14 @@
+config {
+  type: "table",
+  tags: 'M02',
+  dependencies:['TrafficLight']
+}
+
+SELECT
+	* EXCEPT(LastModifiedDate)
+FROM ${ref('M02_ContactRol_SQL')}
+WHERE SapId__c NOT IN (
+	SELECT DISTINCT
+		SapId__c 
+	FROM ${ref('M02_ContactRol_SQL')} 
+	WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))

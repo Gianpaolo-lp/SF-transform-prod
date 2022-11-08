@@ -9,29 +9,35 @@ SELECT
   Contact,
   ContactChannel,
   CreatedById,
-  CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
   CASE
-  WHEN DoNotContact = 'TRUE'   THEN '1'
-  WHEN DoNotContact = 'FALSE'  THEN '0'
+   WHEN CAST(CreatedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(CreatedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS CreatedDate,
+  CASE
+  WHEN UPPER(DoNotContact) = 'TRUE'   THEN '1'
+  WHEN UPPER(DoNotContact) = 'FALSE'  THEN '0'
   END AS DoNotContact,
   Email,
   Id,
   IsDeleted,
   LastModifiedById,
-  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
   CASE
-  WHEN MainChannel = 'TRUE'    THEN '1'
-  WHEN MainChannel = 'FALSE'   THEN '0'
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS LastModifiedDate,
+  CASE
+  WHEN UPPER(MainChannel) = 'TRUE'    THEN '1'
+  WHEN UPPER(MainChannel) = 'FALSE'   THEN '0'
   END AS MainChannel,
   Name,
   OwnerId,
-  Phone,
-  PhonePrefix,
+  Phone, 
+  PhonePrefix, -- invertire
   Source,
-  CAST(SystemModstamp AS TIMESTAMP) AS SystemModstamp,
   CASE
-  WHEN ToDelete = 'TRUE' THEN '1'
-  WHEN ToDelete = 'FALSE' THEN '0'
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS SystemModstamp,
+  CASE
+  WHEN UPPER(ToDelete) = 'TRUE' THEN '1'
+  WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
   END AS ToDelete,
   Type
 FROM ${ref('ContactChannel__c')}

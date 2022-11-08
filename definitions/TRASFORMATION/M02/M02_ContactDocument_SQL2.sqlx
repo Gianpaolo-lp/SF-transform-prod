@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+SELECT 
+	* except(SapId,LastModifiedDate),
+	ROW_NUMBER()OVER(ORDER BY DocumentKey__c ) AS K
+FROM ${ref('M02_ContactDocument_SQL')}
+WHERE SapId NOT IN (
+	SELECT DISTINCT
+		SapId 
+	FROM ${ref('M02_ContactDocument_SQL')}
+	WHERE LastModifiedDate >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP)
+
+)

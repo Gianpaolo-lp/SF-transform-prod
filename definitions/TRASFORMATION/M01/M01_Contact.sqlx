@@ -13,28 +13,32 @@ SELECT
   CASE WHEN AcquisitionDate = '' THEN NULL	
   ELSE CAST(AcquisitionDate AS DATE) END AS AcquisitionDate,	
   CASE
-  WHEN ACTIVEDISCOUNT = 'TRUE' THEN '1'
-  WHEN ACTIVEDISCOUNT = 'FALSE' THEN '0'
-  END AS ACTIVEDISCOUNT,			
-  AgeRange,			
+  WHEN UPPER(ACTIVEDISCOUNT) = 'TRUE' THEN '1'
+  WHEN UPPER(ACTIVEDISCOUNT) = 'FALSE' THEN '0'
+  END AS ACTIVEDISCOUNT,	
+  CASE WHEN LENGTH(AgeRange) >= 2 AND AgeRange LIKE '%.%' THEN  CONCAT('0',SPLIT(CAST(AgeRange AS STRING),'.')[OFFSET(0)]) 
+  ELSE AgeRange END  AS AgeRange,			--conformare a 02
   CASE WHEN Birthdate = '' THEN NULL	
   ELSE CAST(Birthdate AS DATE) END AS Birthdate,
-  Canceled,
+  LOWER(Canceled) AS Canceled,
   Celebrity,
-  CelebrityFlag,
+  LOWER(CelebrityFlag) AS CelebrityFlag, --lower
   CelebrityOther,
   ClusterGroup,
   ClusterValue,
   Country,
   CountryOfBirth,
   CreatedById,
-  CASE WHEN CreatedDate = '' THEN NULL
-  ELSE CAST(CreatedDate AS TIMESTAMP) END AS CreatedDate,
-  CustomerStatus,
+  CASE
+   WHEN CAST(CreatedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(CreatedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS CreatedDate,
+CASE WHEN LENGTH(CustomerStatus) >= 1 THEN 
+  CONCAT('000',SPLIT(CAST(CustomerStatus AS STRING),'.')[OFFSET(0)]) 
+  ELSE CustomerStatus END AS CustomerStatus, --aggiugnere 000 prima 
   CustomerLanguage,
   CASE
-  WHEN CustomerDeceased = 'TRUE'    THEN '1'
-  WHEN CustomerDeceased = 'FALSE'    THEN '0'
+  WHEN UPPER(CustomerDeceased) = 'TRUE'    THEN '1'
+  WHEN UPPER(CustomerDeceased) = 'FALSE'    THEN '0'
   END AS CustomerDeceased,
   CASE WHEN DateOfFirstPurchase = '' THEN NULL
   ELSE CAST(DateOfFirstPurchase AS DATE) END AS DateOfFirstPurchase,
@@ -42,17 +46,17 @@ SELECT
   ELSE CAST(DateOfLastPurchase AS DATE) END AS DateOfLastPurchase,
   CASE WHEN DateOfLastVisit = '' THEN NULL
   ELSE CAST(DateOfLastVisit AS DATE) END AS DateOfLastVisit,
-  Deceased,
-  Discount,
+  LOWER(Deceased) AS Deceased,
+  LOWER(Discount) AS Discount,
   CASE WHEN DISCOUNTEXPIRATIONDATE = '' THEN NULL
   ELSE CAST(DISCOUNTEXPIRATIONDATE AS TIMESTAMP) END AS DISCOUNTEXPIRATIONDATE,
-  CASE WHEN DiscountPerc = '' THEN 0
-  ELSE CAST(SPLIT(DiscountPerc,'.')[OFFSET(0)] AS INT) END AS DiscountPerc,
-  CASE WHEN DiscountPercWW = '' THEN 0
-  ELSE CAST(SPLIT(DiscountPercWW,'.')[OFFSET(0)] AS INT) END AS DiscountPercWW,
+  CASE WHEN DiscountPerc = '' THEN null 
+  ELSE CAST(SPLIT(DiscountPerc,'.')[OFFSET(0)] AS INT) END AS DiscountPerc,--default 
+  CASE WHEN DiscountPercWW = '' THEN null
+  ELSE CAST(SPLIT(DiscountPercWW,'.')[OFFSET(0)] AS INT) END AS DiscountPercWW,--default 
   CASE
-  WHEN DoubleOptInConfirmation = 'TRUE' THEN '1'
-  WHEN DoubleOptInConfirmation = 'FALSE' THEN '0'
+  WHEN UPPER(DoubleOptInConfirmation) = 'TRUE' THEN '1'
+  WHEN UPPER(DoubleOptInConfirmation) = 'FALSE' THEN '0'
   END AS DoubleOptInConfirmation,
   Email,
   EmployeeFlag,
@@ -63,25 +67,30 @@ SELECT
   FiscalCode,
   Name,
   Gender,
-  GenericCustomer,
+  lower(GenericCustomer) as GenericCustomer, --Lower
   GoldenRecord,
   GuestType,
-  HighPotentialClienteling__c,
+  CASE
+  WHEN UPPER(HighPotentialClienteling__c) = 'TRUE' THEN 1
+  WHEN UPPER(HighPotentialClienteling__c) = 'FALSE' THEN 0
+  END AS HighPotentialClienteling__c, --da mettere 1,0
   HomePhone,
   Id,
-  CASE
-  WHEN IsDeleted = 'TRUE' THEN '1'
-  WHEN IsDeleted = 'FALSE' THEN '0'
-  END AS IsDeleted,
+ /* CASE
+  WHEN UPPER(IsDeleted) = 'TRUE' THEN '1'
+  WHEN UPPER(IsDeleted) = 'FALSE' THEN '0'
+  END AS IsDeleted,*/
+lower(IsDeleted) as IsDeleted,
   CASE WHEN LastActivityDate = '' THEN NULL
   ELSE CAST(LastActivityDate AS DATE) END AS LastActivityDate,
   CASE WHEN LastConsentUpdate= '' THEN NULL
   ELSE CAST(LastConsentUpdate AS DATE) END AS LastConsentUpdate,
   LastEvent,
   LastModifiedById,
-  CASE WHEN LastModifiedDate = '' THEN NULL
-  ELSE CAST(LastModifiedDate AS TIMESTAMP) END AS LastModifiedDate,
-  CAST(LastModifiedDate__c AS TIMESTAMP) AS LastModifiedDate__c,
+  CASE
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS LastModifiedDate,
+  CAST(SPLIT(LastModifiedDate__c,'.')[OFFSET(0)] AS DATETIME) AS LastModifiedDate__c,
   LastName,
   LastNameLocal,
   LastNameLocalExtra,
@@ -97,14 +106,13 @@ SELECT
   MobilePhone,
   Nationality,
   NationalityProvince,
+  NaturalPerson, -- X vedre sul codice
+  CASE WHEN UPPER(NewsletterConsent) =  'TRUE' THEN '1'
+  WHEN UPPER(NewsletterConsent) = 'FALSE'    THEN '0'
+  END AS NewsletterConsent , --Cambiare True con 1 etcc...
   CASE
-  WHEN NaturalPerson = 'TRUE' THEN '1'
-  WHEN NaturalPerson = 'FALSE' THEN '0'
-  END AS NaturalPerson,
-  NewsletterConsent,
-  CASE
-  WHEN OneToOneConsent = 'TRUE'     THEN '1'
-  WHEN OneToOneConsent = 'FALSE'    THEN '0'
+  WHEN UPPER(OneToOneConsent) = 'TRUE'     THEN '1'
+  WHEN UPPER(OneToOneConsent) = 'FALSE'    THEN '0'
   END AS OneToOneConsent,
   OtherPhone,
   OwnerId,
@@ -122,23 +130,25 @@ SELECT
   SFSource,
   Salutation,
   SapId,
-  SecondDedicatedStore,
+  CASE WHEN SecondDedicatedStore = 'nd' then NULL
+  ELSE SecondDedicatedStore END AS SecondDedicatedStore, --ostituire nd con null 
   SECONDSALEASSISTANTOFCOMP,
   Source,
   State,
   Status,
-  CASE WHEN SystemModstamp = '' THEN NULL
-  ELSE CAST(SystemModstamp AS TIMESTAMP) END AS SystemModstampmModstamp,
+  CASE
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'+')[OFFSET(0)] AS DATETIME)  END AS SystemModstamp,
   TaxIdNumber,
   Title,
   CASE
-  WHEN TopFamily = 'TRUE'        THEN '1'
-  WHEN TopFamily = 'FALSE'         THEN '0'
+  WHEN UPPER(TopFamily) = 'TRUE'        THEN '1'
+  WHEN UPPER(TopFamily) = 'FALSE'         THEN '0'
   END AS TopFamily,
   S1.Unionid,
   CASE
-  WHEN S1.UnreachableAddress = 'TRUE'        THEN '1'
-  WHEN S1.UnreachableAddress = 'FALSE'    THEN '0'
+  WHEN UPPER(S1.UnreachableAddress) = 'TRUE'        THEN '1'
+  WHEN UPPER(S1.UnreachableAddress) = 'FALSE'    THEN '0'
   END AS UnreachableAddress,
   S1.VatNumber,
   S1.VIP,

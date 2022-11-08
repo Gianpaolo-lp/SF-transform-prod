@@ -1,0 +1,14 @@
+config {
+  type: "table",
+  tags: 'M02',
+  dependencies:['TrafficLight']
+}
+
+SELECT 
+	*
+FROM ${ref('M02_ContactRol_SQL')} 
+WHERE SapId__c IN (
+	SELECT DISTINCT
+		SapId__c 
+	FROM ${ref('M02_ContactRol_SQL')}  
+	WHERE cast(LastModifiedDate as timestamp) >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))

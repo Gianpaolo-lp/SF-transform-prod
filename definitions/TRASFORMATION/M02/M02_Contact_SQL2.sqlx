@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  tags: 'M02',
+  dependencies:['TrafficLight']
+}
+
+SELECT
+	* except(SapId__c,CreatedById,CreatedDate,Deceased__c,Id,IsDeleted,LastActivityDate,LastCURequestDate,LastCUUpdateDate,
+	LastModifiedById,LastModifiedDate__c,MasterRecordId,Name,Phone,SystemModstamp,Title,UnionId__c,VIP__c)
+FROM ${ref('M02_Contact_SQL')}
+WHERE SapId__c NOT IN (
+	SELECT DISTINCT
+		SapId__c 
+	FROM ${ref('M02_Contact_SQL')} 
+	WHERE CAST(LastModifiedDate__c AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))

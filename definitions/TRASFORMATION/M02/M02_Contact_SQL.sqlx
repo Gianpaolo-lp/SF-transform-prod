@@ -1,0 +1,220 @@
+config {
+  type: "table",
+  tags: 'M02',
+  dependencies:['TrafficLight']
+}
+
+SELECT 
+  AccountId, --CAMPO RELAZIONALE
+  CASE 
+    WHEN AcquisitionDate = '' THEN NULL	
+    ELSE CAST(AcquisitionDate AS DATE) END AS AcquisitionDate__c,	
+  CASE
+    WHEN UPPER(ActiveDiscount ) IN ('TRUE', 'T') THEN '1'
+    WHEN UPPER(ActiveDiscount ) IN ('FALSE', 'F') THEN '0'
+    END AS ActiveDiscount__c,
+  AgeRange AS AgeRange__c,
+  CASE 
+    WHEN Birthdate = '' THEN NULL	
+    ELSE CAST(Birthdate AS DATE) END AS Birthdate,
+  CRMCampaigns AS CRMCampaigns__c,
+  Canceled AS Canceled__c,
+  CelebrityFlag AS CelebrityFlag__c,
+  ClientTier AS ClientTier__c,
+  CountryOfBirth, --CAMPO RELAZIONALE
+  CreatedById, --CAMPO RELAZIONALE
+  CASE
+    WHEN CreatedDate = '' THEN NULL
+    ELSE CAST(CreatedDate AS TIMESTAMP) END AS CreatedDate,
+  CASE
+    WHEN UPPER(CustomerDeceased ) IN ('TRUE', 'T')    THEN '1'
+    WHEN UPPER(CustomerDeceased ) IN ('FALSE', 'F')    THEN '0'
+    END AS CustomerDeceased__c,
+  CustomerLanguage AS CustomerLanguage__c,
+  CustomerStatus AS CustomerStatus__c,
+  CASE
+    WHEN DateOfFirstPurchase = '' THEN NULL
+    ELSE CAST(DateOfFirstPurchase AS DATE) END AS DateOfFirstPurchase__c,
+  CASE 
+    WHEN DateOfLastPurchase = '' THEN NULL
+    ELSE CAST(DateOfLastPurchase AS DATE) END AS DateOfLastPurchase__c,
+  CASE 
+    WHEN DateOfLastVisit = '' THEN NULL
+    ELSE CAST(DateOfLastVisit AS DATE) END AS DateOfLastVisit__c,
+  Deceased as Deceased__c,
+  CASE 
+    WHEN DiscountExpirationDate = '' THEN NULL
+    ELSE CAST(DiscountExpirationDate AS TIMESTAMP) END AS DiscountExpirationDate__c,
+  CASE 
+    WHEN DiscountPerc = '' THEN 0
+    ELSE CAST(SPLIT(DiscountPerc,'.')[OFFSET(0)] AS INT) END AS DiscountPerc__c,
+  CASE 
+    WHEN DiscountPercWW = '' THEN 0
+    ELSE CAST(SPLIT(DiscountPercWW,'.')[OFFSET(0)] AS INT) END AS DiscountPercWW__c,
+  Discount AS Discount__c,
+  Email,
+  EmployeeFlag as EmployeeFlag__c,
+  EmployeePersonId as EmployeePersonId__c,
+  Fax,
+  FirstName,
+  FirstNameLocalExtra as FirstNameLocalExtra__c,
+  FirstNameLocal as FirstNameLocal__c,
+  FiscalCode as FiscalCode__c,
+  Gender as Gender__c,
+  GenericCustomer as GenericCustomer__c,
+  GoldenRecord as GoldenRecord__c,
+  HighTicketsFW as HighTicketsFW__c,
+  HighTicketsSS as HighTicketsSS__c,
+  HighestClientTier as HighestClientTier__c,
+  HomePhone,
+  Id,
+  CASE
+    WHEN UPPER(IsDeleted ) IN ('TRUE', 'T') THEN '1'
+    WHEN UPPER(IsDeleted ) IN ('FALSE', 'F') THEN '0'
+    END AS IsDeleted,
+  CASE 
+    WHEN LastActivityDate = '' THEN NULL
+    ELSE CAST(LastActivityDate AS DATE) END AS LastActivityDate,
+  LastCURequestDate,
+  LastCUUpdateDate,
+  CASE
+    WHEN LastConsentUpdate= '' THEN NULL
+    ELSE CAST(LastConsentUpdate AS DATE) END AS LastConsentUpdate__c,
+  LastModifiedById, --CAMPO RELAZIONALE
+  CASE 
+    WHEN LastModifiedDate = '' THEN NULL
+    ELSE CAST(LastModifiedDate AS TIMESTAMP) END AS LastModifiedDate,
+  LastName,
+  LastNameLocalExtra as LastNameLocalExtra__c,
+  LastNameLocal as LastNameLocal__c,
+  LastYearFullYear as LastYearFullYear__c,
+  LastYearOfPurchase as LastYearOfPurchase__c,
+  LastYearToDate as LastYearToDate__c,
+  MailingCity,
+  MailingCountry,
+  MailingPostalCode,
+  MailingState,
+  MailingStreet,
+  MarketingConsent as MarketingConsent__c,
+  MasterRecordId,
+  MobilePhone,
+  Name,
+  NationalityProvince, --CAMPO RELAZIONALE
+  Nationality, --CAMPO RELAZIONALE
+  CASE
+    WHEN UPPER(NaturalPerson ) IN ('TRUE', 'T') THEN '1'
+    WHEN UPPER(NaturalPerson ) IN ('FALSE', 'F') THEN '0'
+    END AS NaturalPerson__c,
+  CASE 
+      WHEN NetSalesCurrentYearReturns = '' THEN 0
+      ELSE CAST(SPLIT(NetSalesCurrentYearReturns,'.')[OFFSET(0)] AS INT) END AS NetSalesCurrentYearReturns__c,
+  CASE
+      WHEN NetSalesLast12Months = '' THEN 0  
+      ELSE CAST(SPLIT(NetSalesLast12Months,'.')[OFFSET(0)] AS INT) END AS NetSalesLast12Months__c,
+  CASE
+      WHEN NetSalesReturns = '' THEN 0  
+      ELSE CAST(SPLIT(NetSalesReturns,'.')[OFFSET(0)] AS INT) END AS NetSalesReturns__c,
+  CASE 
+      WHEN NumberOfTotalVisits = '' THEN 0 
+      ELSE CAST(SPLIT(NumberOfTotalVisits,'.')[OFFSET(0)] AS INT) END AS NumberOfTotalVisits__c,
+  CASE 
+      WHEN NumberOfVisitsLastYear = '' THEN 0
+      ELSE CAST(SPLIT(NumberOfVisitsLastYear,'.')[OFFSET(0)] AS INT) END AS NumberOfVisitsLastYear__c,
+  CASE 
+      WHEN NumberOfVisits = '' THEN 0
+      ELSE CAST(SPLIT(NumberOfVisits,'.')[OFFSET(0)] AS INT) END AS NumberOfVisits__c,
+  OperatorCode as OperatorCode__c,
+  OtherPhone,
+  OwnerId, --CAMPO RELAZIONALE
+  PassportNumber AS PassportNumber__c,
+  Phone,
+  PreferredContactMethod AS PreferredContactMethod__c,
+  Profession AS Profession__c,
+  ProfilingConsent AS ProfilingConsent__c,
+  RecordType,--CAMPO RELAZIONALE
+  RegistrationStore,--CAMPO RELAZIONALE
+  RolId AS RolId__c,
+  Salutation,
+  SapId AS SapId__c,
+  SecondDedicatedStore,--CAMPO RELAZIONALE
+  SECONDSALEASSISTANTOFCOMP,--CAMPO RELAZIONALE
+  Source AS Source__c,
+  State AS State__c,
+  Status AS Status__c,
+  CASE 
+    WHEN SystemModstamp = '' THEN NULL
+    ELSE CAST(SystemModstamp AS TIMESTAMP) END AS SystemModstamp,
+  TaxIdNumber as TaxIdNumber__C,
+  Title,
+  CASE
+    WHEN UPPER(ToDelete ) IN ('TRUE', 'T')    THEN '1'
+    WHEN UPPER(ToDelete ) IN ('FALSE', 'F')    THEN '0'
+    END AS ToDelete__c,
+  Unionid as Unionid__c,
+  CASE
+    WHEN UPPER(UnreachableAddress ) IN ('TRUE', 'T')  THEN '1'
+    WHEN UPPER(UnreachableAddress ) IN ('FALSE', 'F')  THEN '0'
+    END AS UnreachableAddress__c,
+  VIP as VIP__c,
+  VatNumber as VatNumber__C,
+  NewsletterConsent as NewsletterConsent__c,
+  CASE
+    WHEN UPPER(OneToOneConsent ) IN ('TRUE', 'T')     THEN '1'
+    WHEN UPPER(OneToOneConsent ) IN ('FALSE', 'F')    THEN '0'
+    END AS OneToOneConsent__c,
+  CASE
+    WHEN UPPER(TopFamily) IN ('TRUE', 'T') THEN '1'
+    WHEN UPPER(TopFamily) IN ('FALSE', 'F') THEN '0'
+    END AS TopFamily__c,
+  ClusterGroup as ClusterGroup__c,
+  ClusterValue as ClusterValue__c,
+  propensitycategorycode as PropensityCategoryCode__c,
+  CASE 
+    WHEN propensityouterprobability = '' THEN 0
+    ELSE CAST(SPLIT(propensityouterprobability,'.')[OFFSET(0)] AS INT) END AS PropensityOuterProbability__c,
+  CASE 
+    WHEN propensityshoesprobability = '' THEN 0
+    ELSE CAST(SPLIT(propensityshoesprobability,'.')[OFFSET(0)] AS INT) END AS PropensityShoesProbability__c,
+  CASE 
+    WHEN propensityothersprobability = '' THEN 0
+    ELSE CAST(SPLIT(propensityothersprobability,'.')[OFFSET(0)] AS INT) END AS PropensityOthersProbability__c,
+  CASE
+    WHEN propensityleatherprobability = '' THEN 0
+    ELSE CAST(SPLIT(propensityleatherprobability,'.')[OFFSET(0)] AS INT) END AS PropensityLeatherProbability__c,
+  CASE
+    WHEN propensityknitwearprobability = '' THEN 0
+    ELSE CAST(SPLIT(propensityknitwearprobability,'.')[OFFSET(0)] AS INT) END AS PropensityKnitwearProbability__c,
+  propensityouterquantile as PropensityOuterQuantile__c,
+  propensityshoesquantile as PropensityShoesQuantile__c,
+  propensityothersquantile as PropensityOthersQuantile__c,
+  propensityleatherquantile as PropensityLeatherQuantile__c,
+  propensityknitwearquantile as PropensityKnitwearQuantile__c,
+  MailingLatitude,
+  MailingLongitude,
+  PurchasingPowerEstimate as PurchasingPowerEstimate__c,
+  LifestyleClusterEstimate as LifestyleClusterEstimate__c,
+  NearestStoreCode as NearestStoreCode__c,
+  LocalTouristSoC as LocalTouristSoC__c,
+  ClientPotential as ClientPotential__c,
+  StoreOfFirstPurchase,--CAMPO RELAZIONALE
+  StoreOfLastPurchase, --CAMPO RELAZIONALE
+  EcomPurchasesOnly AS EcomPurchasesOnly__c,
+  StorePurchasesOnly AS StorePurchasesOnly__c,
+  ReachableFlag AS ReachableFlag__c,
+  ReachableClientelingFlag AS ReachableClientelingFlag__c,
+  ReachableNewsletterFlag AS ReachableNewsletterFlag__c,
+  ReachablePaperFlag as ReachablePaperFlag__c,
+  ReachableSMSFlag as ReachableSMSFlag__c,
+  --ResellerFlag__c,
+  LastModifiedDate__c,
+  RolAcquisitionDate as RolAcquisitionDate__c,
+  RolRegistrationStore_TaxiShopCode,--CAMPO RELAZIONALE, 
+  RegistrationSaleAssistant_PersonId--CAMPO RELAZIONALE,
+
+  
+FROM  ${ref('Contact_S')} left join ${ref('Contact_S1')} using (Id)
+WHERE (Source = 'WeChat' OR CAST(LastModifiedDate__c AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE(), ' ', '20:15:00 UTC') AS TIMESTAMP))
+  AND SapId <> ''
+  AND LastModifiedById <> 'SAS'
+  AND GoldenRecord = ''
+  AND RecordType_DeveloperName in ('Customer','Prospect')

@@ -7,33 +7,35 @@ config {
 SELECT
     Contact,
     CreatedById,
-    CASE WHEN CAST(CreatedDate AS STRING) = '' THEN NULL
-    ELSE CAST(CreatedDate AS TIMESTAMP) END AS CreatedDate,
+  CASE
+   WHEN CAST(CreatedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(CreatedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END AS CreatedDate,
     DocumentKey,
     DocumentNumber,
     CASE WHEN CAST(ExpiringDate AS STRING) = '' THEN NULL
     ELSE CAST(ExpiringDate AS DATE) END AS ExpiringDate,
     Id,
     CASE
-    WHEN IsDeleted = 'TRUE' THEN '1'
-    WHEN IsDeleted = 'FALSE' THEN '0'
+    WHEN UPPER(IsDeleted) = 'TRUE' THEN '1'
+    WHEN UPPER(IsDeleted) = 'FALSE' THEN '0'
     END AS IsDeleted,
     CASE WHEN CAST(IssuingDate AS STRING) = '' THEN NULL
     ELSE CAST(IssuingDate AS DATE) END AS IssuingDate,
     IssuingPlace,
     LastModifiedById,
-    CASE WHEN CAST(LastModifiedDate AS STRING) = '' THEN NULL
-    ELSE CAST(LastModifiedDate AS TIMESTAMP)END  AS LastModifiedDate,
+  CASE
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'+')[OFFSET(0)] AS DATETIME) END  AS LastModifiedDate,
     CASE
-    WHEN MainDocument = 'TRUE' THEN '1'
-    WHEN MainDocument = 'FALSE' THEN '0'
+    WHEN UPPER(MainDocument) = 'TRUE' THEN '1'
+    WHEN UPPER(MainDocument) = 'FALSE' THEN '0'
     END AS MainDocument,
     Name,
     OwnerId,
     Source,
     CASE
-    WHEN ToDelete = 'TRUE' THEN '1'
-    WHEN ToDelete = 'FALSE' THEN '0'
+    WHEN UPPER(ToDelete) = 'TRUE' THEN '1'
+    WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
     END AS ToDelete,
     Type
 FROM ${ref('ContactDocument__c')}

@@ -5,7 +5,7 @@ config {
 
 SELECT 
 DISTINCT
-    S.UnionID,
+    UnionID,
     MarketingLanguage__c,
     S.WeChatSource,
     RegistrationStore,

@@ -5,19 +5,28 @@ config {
 }
 
 SELECT
-  FullAddress,
+  REPLACE(FullAddress,',',' ') AS  FullAddress, 
   AddressKey,
   CreatedById,
-  CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+  CASE
+   WHEN CAST(CreatedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(CreatedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'+')[OFFSET(0)] AS DATETIME)
+  END AS CreatedDate,
   IsDeleted,
   LastModifiedById,
-  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+CASE
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(LastModifiedDate AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(LastModifiedDate AS STRING),'+')[OFFSET(0)] AS DATETIME)
+  END AS LastModifiedDate,
   OwnerId,
   Name,
   Id,
-  CAST(SystemModstamp AS TIMESTAMP) AS SystemModstamp,
+CASE
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'.')[OFFSET(0)] AS DATETIME)
+   WHEN CAST(SystemModstamp AS STRING) LIKE '%+%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'+')[OFFSET(0)] AS DATETIME)
+END AS SystemModstamp,
   Type,
-  OtherType,
+  CONCAT('0',SPLIT(CAST(OtherType AS STRING),'.')[OFFSET(0)]) AS OtherType,
   Locale,
   Contact,
   Street,
@@ -44,4 +53,4 @@ SELECT
     WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
     END AS ToDelete*/
 FROM ${ref('Address__c')}
-WHERE UPPER(MainAddress) = 'TRUE'
+--WHERE UPPER(MainAddress) = 'TRUE'

@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+SELECT 
+	* except(LastModifiedDate,LastModifiedById),
+	ROW_NUMBER()OVER(ORDER BY AddressKey__c ) AS K
+FROM ${ref('M02_Address_SQL')}
+WHERE SAPID__c NOT IN (
+	SELECT DISTINCT
+		SAPID__c 
+	FROM ${ref('M02_Address_SQL')} 
+	WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))
+
+ORDER BY K 

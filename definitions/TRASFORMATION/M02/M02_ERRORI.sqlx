@@ -1,0 +1,65 @@
+config {
+  type: "incremental",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+
+
+SELECT
+SAPID__c AS KEY,
+'M02_ADDRESS_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_Address_SQLE')}
+
+UNION ALL
+
+SELECT
+SapId AS KEY,
+'M02_ContactDocument_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_ContactDocument_SQLE')}
+
+UNION ALL
+
+SELECT
+Contact__r_SapId__c AS KEY,
+'M02_ContactChannel_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_ContactChannel_SQLE')}
+
+UNION ALL 
+
+SELECT
+SapId__c AS KEY,
+'M02_Contact_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_Contact_SQLE')}
+
+UNION ALL 
+
+SELECT
+SapId__c AS KEY,
+'M02_Contact2_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_Contact2_SQLE')}
+
+UNION ALL 
+
+SELECT
+SapId__c AS KEY,
+'M02_ContactRol_SQLE' AS FLUSSO,
+'1' AS SCARTO,
+'Record aggiornato postScarico' AS NOTE,
+CURRENT_DATETIME() AS INS_DTA
+FROM ${ref('M02_ContactRol_SQLE')}

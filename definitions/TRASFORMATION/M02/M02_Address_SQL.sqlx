@@ -1,0 +1,51 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+SELECT
+/*  FullAddress as FullAddress__c,
+  CreatedById,
+  CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+  IsDeleted,
+  OwnerId,
+  Name,
+  Id,
+  CAST(SystemModstamp AS TIMESTAMP) AS SystemModstamp,*/
+  LastModifiedById,
+  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+  AddressKey as AddressKey__c,
+  Type as Type__c,
+  OtherType as OtherType__c,
+  Locale as Locale__c,
+--  Contact as Contact__c,
+  Street as Street__c,
+  City as City__c,
+  Country as Country__r_Code__c,
+  Province as Province__r_UniqueCode__c,
+  PostalCode as PostalCode__c,
+  CASE  
+    WHEN UPPER(MainAddress) = 'TRUE' THEN '1'
+    WHEN UPPER(MainAddress) = 'FALSE' THEN '0'
+    END AS MainAddress__c,
+  CareOf as CareOf__c,
+  HouseNumber as HouseNumber__c,
+  AdditionalStreet as AdditionalStreet__c,
+  Location as Location__c,
+  Building as Building__c,
+  Floor as Floor__c,
+  RoomNumber as RoomNumber__c,
+  PoBox as PoBox__c,
+  PoBoxPostalCode as PoBoxPostalCode__c,
+  Source as Source__c,
+  Contact__r_SapId__c as SAPID__c,
+  CASE  
+    WHEN UPPER(ToDelete) = 'TRUE' THEN '1'
+    WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
+    END AS ToDelete__c
+FROM ${ref('Address__c')}
+WHERE(Source = 'WeChat' OR CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP))
+  AND Contact <> ''
+  AND LastModifiedById <> 'SA'
+ -- AND UPPER(MainAddress) = 'TRUE'

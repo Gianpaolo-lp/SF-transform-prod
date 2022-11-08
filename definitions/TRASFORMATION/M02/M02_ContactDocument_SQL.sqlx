@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+        
+
+SELECT
+  --Contact as Contact__c,
+  --CreatedById,
+  --CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+  DocumentKey as DocumentKey__c,
+  DocumentNumber as DocumentNumber__c,
+  CASE WHEN ExpiringDate = '' THEN NULL 
+  ELSE CAST(ExpiringDate AS DATE) 
+  END AS ExpiringDate__c,
+  --Id,
+  --CASE
+  --  WHEN IsDeleted = 'TRUE' THEN '1'
+  --  WHEN IsDeleted = 'FALSE' THEN '0'
+  --  END AS IsDeleted,
+  CAST(IssuingDate AS DATE) AS IssuingDate__c,
+  IssuingPlace as IssuingPlace__c,
+--  LastModifiedById,
+  CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+  CASE
+    WHEN UPPER(MainDocument) = 'TRUE' THEN '1'
+    WHEN UPPER(MainDocument) = 'FALSE' THEN '0'
+    END AS MainDocument__c,
+--  Name,
+--  OwnerId,
+  Contact__r_SapId__c as SapId,  --to fix in GCP cloud function add it to query and schema like in PROD
+  Source AS Source__c,
+  CASE
+    WHEN ToDelete = 'TRUE' THEN '1'
+    WHEN ToDelete = 'FALSE' THEN '0'
+    END AS ToDelete__c,
+  Type as Type__c
+FROM ${ref('ContactDocument__c')}
+WHERE (Source = 'WeChat' OR LastModifiedDate >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP)) 
+    AND Contact__r_SapId__c !=''
+    AND LastModifiedById != 'SAS'
+    AND UPPER(MainDocument) = 'TRUE'

@@ -1,0 +1,18 @@
+config {
+  type: "table",
+  tags: "M02",
+  dependencies:['TrafficLight']
+}
+
+
+SELECT 
+	*
+FROM ${ref('M02_ContactDocument_SQL')}
+WHERE SapId IN (
+	SELECT DISTINCT
+		SapId 
+	FROM ${ref('M02_ContactDocument_SQL')}
+	WHERE LastModifiedDate >= CAST(CONCAT(CURRENT_DATE()-1, ' ', '20:15:00 UTC') AS TIMESTAMP)
+
+)
+
