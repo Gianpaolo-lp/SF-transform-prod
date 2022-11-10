@@ -22,10 +22,10 @@ SELECT
   ELSE CAST(Birthdate AS DATE) END AS Birthdate,
   LOWER(Canceled) AS Canceled,
   Celebrity,
-  LOWER(CelebrityFlag) AS CelebrityFlag, --lower
+  lower(CelebrityFlag), 
   CelebrityOther,
   ClusterGroup,
-  ClusterValue,
+  ClusterValue,  
   Country,
   CountryOfBirth,
   CreatedById,
@@ -99,7 +99,7 @@ lower(IsDeleted) as IsDeleted,
   MailingCity,
   MailingCountry,
   MailingState,
-  MailingStreet,
+  MailingStreet, --escape 
   MailingPostalCode,
   MarketingConsent,
   MasterRecordId,
@@ -151,7 +151,7 @@ lower(IsDeleted) as IsDeleted,
   WHEN UPPER(S1.UnreachableAddress) = 'FALSE'    THEN '0'
   END AS UnreachableAddress,
   S1.VatNumber,
-  S1.VIP,
+  S1.VIP, --lower
   S1.WeChatSource,
   S1.WeChatStore, 
 

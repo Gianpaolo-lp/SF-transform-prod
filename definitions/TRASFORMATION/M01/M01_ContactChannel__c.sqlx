@@ -29,8 +29,12 @@ SELECT
   END AS MainChannel,
   Name,
   OwnerId,
-  Phone, 
-  PhonePrefix, -- invertire
+  CASE WHEN Phone LIKE '%.%' THEN CONCAT('+',SPLIT(Phone,'.')[OFFSET(0)])
+  ELSE Phone 
+  END AS Phone, 
+  CASE WHEN  LENGTH(PhonePrefix) > 1 THEN  CONCAT('+',SPLIT(PhonePrefix,'.')[OFFSET(0)]) 
+  ELSE PhonePrefix 
+  END AS PhonePrefix, 
   Source,
   CASE
    WHEN CAST(SystemModstamp AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(SystemModstamp AS STRING),'.')[OFFSET(0)] AS DATETIME)

@@ -5,7 +5,7 @@ config {
 }
 
 SELECT
-  REPLACE(FullAddress,',',' ') AS  FullAddress, 
+  REPLACE(FullAddress,'	 ',',') AS  FullAddress, --replace
   AddressKey,
   CreatedById,
   CASE
@@ -29,7 +29,7 @@ END AS SystemModstamp,
   CONCAT('0',SPLIT(CAST(OtherType AS STRING),'.')[OFFSET(0)]) AS OtherType,
   Locale,
   Contact,
-  Street,
+  REPLACE(Street,'	 ',',') as  Street, --replace
   City,
   Country,
   Province,
@@ -40,7 +40,7 @@ END AS SystemModstamp,
     END AS MainAddress,
   CareOf,
   HouseNumber,
-  AdditionalStreet,
+  REPLACE(AdditionalStreet,'	 ',',') as AdditionalStreet, --replace
   Location,
   Building,
   Floor,
