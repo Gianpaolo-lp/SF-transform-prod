@@ -30,7 +30,7 @@ SELECT
   Name,
   OwnerId,
   CASE WHEN Phone LIKE '%.%' THEN CONCAT('+',SPLIT(Phone,'.')[OFFSET(0)])
-  ELSE Phone 
+  ELSE CONCAT('+',Phone)
   END AS Phone, 
   CASE WHEN  LENGTH(PhonePrefix) > 1 THEN  CONCAT('+',SPLIT(PhonePrefix,'.')[OFFSET(0)]) 
   ELSE PhonePrefix 

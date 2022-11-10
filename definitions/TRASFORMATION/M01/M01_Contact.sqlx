@@ -22,7 +22,7 @@ SELECT
   ELSE CAST(Birthdate AS DATE) END AS Birthdate,
   LOWER(Canceled) AS Canceled,
   Celebrity,
-  lower(CelebrityFlag), 
+  lower(CelebrityFlag) as CelebrityFlag, 
   CelebrityOther,
   ClusterGroup,
   ClusterValue,  
@@ -151,7 +151,7 @@ lower(IsDeleted) as IsDeleted,
   WHEN UPPER(S1.UnreachableAddress) = 'FALSE'    THEN '0'
   END AS UnreachableAddress,
   S1.VatNumber,
-  S1.VIP, --lower
+  lower(S1.VIP) as VIP, --lower
   S1.WeChatSource,
   S1.WeChatStore, 
 

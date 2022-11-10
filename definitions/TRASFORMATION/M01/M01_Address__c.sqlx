@@ -5,7 +5,7 @@ config {
 }
 
 SELECT
-  REPLACE(FullAddress,'	 ',',') AS  FullAddress, --replace
+  REPLACE(FullAddress,'\t ',',') AS  FullAddress, --replace
   AddressKey,
   CreatedById,
   CASE
@@ -29,7 +29,7 @@ END AS SystemModstamp,
   CONCAT('0',SPLIT(CAST(OtherType AS STRING),'.')[OFFSET(0)]) AS OtherType,
   Locale,
   Contact,
-  REPLACE(Street,'	 ',',') as  Street, --replace
+  REPLACE(Street,'\t ',',') as  Street, --replace
   City,
   Country,
   Province,
@@ -40,17 +40,19 @@ END AS SystemModstamp,
     END AS MainAddress,
   CareOf,
   HouseNumber,
-  REPLACE(AdditionalStreet,'	 ',',') as AdditionalStreet, --replace
+  REPLACE(AdditionalStreet,'\t ',',') as AdditionalStreet, --replace
   Location,
   Building,
   Floor,
   RoomNumber,
   PoBox,
   PoBoxPostalCode,
-  Source,
+  Source, 
  /* CASE  
     WHEN UPPER(ToDelete) = 'TRUE' THEN '1'
     WHEN UPPER(ToDelete) = 'FALSE' THEN '0'
     END AS ToDelete*/
 FROM ${ref('Address__c')}
 --WHERE UPPER(MainAddress) = 'TRUE'
+
+WHERE Id in ('a0v2o00000I6TQ9AAN','a0v2o00000UTUYkAAP')
