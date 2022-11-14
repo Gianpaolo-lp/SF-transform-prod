@@ -30,7 +30,11 @@ SELECT
   Name,
   OwnerId,
   CASE WHEN Phone LIKE '%.%' THEN CONCAT('+',SPLIT(Phone,'.')[OFFSET(0)])
-  ELSE CONCAT('+',Phone)
+  WHEN Phone LIKE '+' THEN Phone
+  WHEN (Phone LIKE '%0%' OR Phone LIKE '%1%' OR Phone LIKE '%2%'  OR Phone LIKE '%3%'  OR Phone LIKE '%4%'  OR Phone LIKE '%5%'  OR Phone LIKE '%6%' OR Phone LIKE '%7%' OR Phone LIKE '%8%'  OR Phone LIKE '%9%')
+  AND NOT REGEXP_CONTAINS(Phone, r'[A-Z]') AND Phone NOT LIKE '%+%'
+   THEN CONCAT('+',Phone)
+  ELSE Phone
   END AS Phone, 
   CASE WHEN  LENGTH(PhonePrefix) > 1 THEN  CONCAT('+',SPLIT(PhonePrefix,'.')[OFFSET(0)]) 
   ELSE PhonePrefix 
