@@ -38,13 +38,13 @@ END AS SystemModstamp,
     WHEN UPPER(MainAddress) = 'TRUE' THEN '1'
     WHEN UPPER(MainAddress) = 'FALSE' THEN '0'
     END AS MainAddress,
-  CareOf,
+  REPLACE(CareOf,'\t ',',') AS CareOf,
   HouseNumber,
   REPLACE(AdditionalStreet,'\t ',',') as AdditionalStreet, --replace
-  Location,
-  Building,
+  REPLACE(Location,'\t ',',') as Location,
+  SPLIT(CAST(Building AS STRING),'.')[OFFSET(0)] as Building,
   Floor,
-  RoomNumber,
+  SPLIT(CAST(RoomNumber AS STRING),'.')[OFFSET(0)] as RoomNumber,
   PoBox,
   PoBoxPostalCode,
   Source, 
