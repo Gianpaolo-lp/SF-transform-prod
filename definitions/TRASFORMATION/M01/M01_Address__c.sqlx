@@ -38,10 +38,10 @@ END AS SystemModstamp,
     WHEN UPPER(MainAddress) = 'TRUE' THEN '1'
     WHEN UPPER(MainAddress) = 'FALSE' THEN '0'
     END AS MainAddress,
-  REPLACE(CareOf,'\t ',',') AS CareOf,
+  replace(CareOf,'	',',') AS CareOf,
   HouseNumber,
   REPLACE(AdditionalStreet,'\t ',',') as AdditionalStreet, --replace
-  REPLACE(Location,'\t ',',') as Location,
+  replace(Location,'	',',')  as Location,
   SPLIT(CAST(Building AS STRING),'.')[OFFSET(0)] as Building,
   Floor,
   SPLIT(CAST(RoomNumber AS STRING),'.')[OFFSET(0)] as RoomNumber,
