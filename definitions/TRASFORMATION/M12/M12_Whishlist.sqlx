@@ -1,0 +1,77 @@
+config {
+  type: "table"
+}
+
+WITH M11_NAVIGATO_FINAL_3 AS (
+    SELECT 
+        * EXCEPT(number)
+    FROM (SELECT *,row_number() OVER (PARTITION BY SessionsID ORDER BY SessionsID, CookieID, userid) AS number FROM ${ref('M11_NAVIGATO_FULL')})
+		WHERE NUMBER = 1
+),
+
+WL_1 AS (
+    SELECT DISTINCT
+        CONCAT(a.SessionsID,'_', a.CookieID,'-', ProductSku) AS WishListKey__c,
+        a.SessionsID AS SessionsID__c,
+        a.CookieID AS CookieID__c,
+        EventAction,
+        SPLIT(ProductSku, '_')[OFFSET(0)] AS Product__r_LoroPianaCode__c,
+        REPLACE(ProductSku, '_', '-') AS ProductColorCode__c_RecordID__c,
+        Rank,
+        a.UserID AS UserID__c,
+        a.UserID AS Guest__r_SapId__c,
+        CAST(CONCAT(CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) , 'T00:00:00') AS TIMESTAMP) AS EventDate__c,
+        ProductName,
+        CASE 
+            WHEN ARTICOLO_COD IS NULL THEN 'FALSE'
+            ELSE 'TRUE'
+            END AS ItemPurchased__c,
+        HostName,
+        NavigationLanguage,
+        BrowserLanguage,
+        CountrySession,
+        CAST(EMISSIONE_DTA AS TIMESTAMP) AS TransactionDate__c,
+        CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) AS DATE
+    FROM lp-datalake-prod.181871398.addtowishlist_export a 
+        LEFT JOIN M11_NAVIGATO_FINAL_3 b 
+            ON (a.SessionsID = b.SessionsID AND a.CookieID = b.CookieID)
+        LEFT JOIN ${ref('sal_transazioni')} c 
+            ON (SPLIT(a.ProductSku, '_')[OFFSET(0)] = c.ARTICOLO_COD AND b.ROL_ID = c.CLIE_DWH_COD AND CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) <= CAST(c.EMISSIONE_DTA AS DATE))
+    WHERE CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) >= CAST(CURRENT_DATE()-7 AS STRING)
+    
+),
+
+WL_2 AS (
+    SELECT DISTINCT
+        WishListKey__c,
+        SessionsID__c,
+        CookieID__c,
+        MAX(EventAction) AS EventAction__c,
+        Product__r_LoroPianaCode__c,
+        ProductColorCode__c_RecordID__c, -- da capire _c?
+        MAX(Rank) AS Rank__c,
+        UserID__c,
+        Guest__r_SapId__c,
+        MAX(EventDate__c) as EventDate__c,
+        MAX(ProductName) AS ProductName__c,
+        MAX(ItemPurchased__c) as ItemPurchased__c,
+        MAX(HostName) AS Hostname__c,
+        MAX(NavigationLanguage) AS NavigationLanguage__c,
+        MAX(BrowserLanguage)	AS BrowserLanguage__c,
+        MAX(CountrySession) AS CountryDescription__c,
+        MIN(TransactionDate__c) as TransactionDate__c,
+        DATE
+    FROM WL_1
+    GROUP BY 1,2,3,5,6,8,9,DATE
+),
+ContactWishlist__c_to_add AS (
+    /* dobbiamo buttare via i record con mese (della data) < mese di oggi -1 */
+    SELECT 
+        *
+    FROM WL_2
+    WHERE  UserID__c IS NOT NULL
+)
+/* storicizzazione */ 
+SELECT * FROM ContactWishlist__c_to_add
+UNION DISTINCT 
+SELECT * FROM ${ref('ContactWishlist__c')}

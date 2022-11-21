@@ -1,0 +1,35 @@
+config {
+  type: "table",
+  tags: 'M11'
+}
+
+WITH NAVIGATO_FULL AS (
+   SELECT DISTINCT
+      sessionsID,
+      cookieID,
+      userID,
+      transactionID
+  FROM lp-datalake-prod.181871398.daily_export_loro_piana
+), 
+NAVIGATO_CON_USER AS (
+    SELECT 
+        a.* EXCEPT(UserID),
+        COALESCE(a.UserID, b.CLIENTE_COD) AS USERID,
+        b.CLIENTE_COD,
+        b.CLIE_DWH_COD
+    FROM NAVIGATO_FULL a
+        LEFT JOIN ${ref('sal_transazioni')} b 
+            ON a.TransactionID = b.ECO_DOC_NUM 
+),
+NAVIGATO_CON_USER2 AS (
+    SELECT 
+        a.*,
+        b.CLIE_DWH_COD AS ROL_ID
+    FROM NAVIGATO_CON_USER a
+        LEFT JOIN ${ref('cst_customer')} b  
+            ON a.USERID = b.CLIENTE_COD
+)
+/* m1_99 da riga 409 non fatto */
+SELECT
+    *
+FROM NAVIGATO_CON_USER2
