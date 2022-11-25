@@ -7,14 +7,15 @@ config {
 SELECT
   ChannelKey,
   Contact,
-  CASE 
-  WHEN ContactChannel LIKE '%.%' THEN CONCAT('+',SPLIT(ContactChannel,'.')[OFFSET(0)])
-  WHEN ContactChannel LIKE '+' THEN ContactChannel
-  WHEN (ContactChannel LIKE '%0%' OR ContactChannel LIKE '%1%' OR ContactChannel LIKE '%2%'  OR ContactChannel LIKE '%3%'  OR ContactChannel LIKE '%4%'  OR ContactChannel LIKE '%5%'  OR ContactChannel LIKE '%6%' OR ContactChannel LIKE '%7%' OR ContactChannel LIKE '%8%'  OR ContactChannel LIKE '%9%')
-  AND NOT REGEXP_CONTAINS(ContactChannel, r'[A-Z]') AND ContactChannel NOT LIKE '%+%'
-   THEN CONCAT('+',ContactChannel)
-  ELSE ContactChannel 
-  END AS  ContactChannel,
+  -- CASE 
+  -- WHEN ContactChannel LIKE '%.%' THEN CONCAT('+',SPLIT(ContactChannel,'.')[OFFSET(0)])
+  -- WHEN ContactChannel LIKE '+' THEN ContactChannel
+  -- WHEN (ContactChannel LIKE '%0%' OR ContactChannel LIKE '%1%' OR ContactChannel LIKE '%2%'  OR ContactChannel LIKE '%3%'  OR ContactChannel LIKE '%4%'  OR ContactChannel LIKE '%5%'  OR ContactChannel LIKE '%6%' OR ContactChannel LIKE '%7%' OR ContactChannel LIKE '%8%'  OR ContactChannel LIKE '%9%')
+  -- AND NOT REGEXP_CONTAINS(ContactChannel, r'[A-Z]') AND ContactChannel NOT LIKE '%+%'
+  --  THEN CONCAT('+',ContactChannel)
+  -- ELSE ContactChannel 
+  -- END AS  
+  ContactChannel,
   CreatedById,
   CASE
    WHEN CAST(CreatedDate AS STRING) LIKE '%.%' THEN CAST(SPLIT(CAST(CreatedDate AS STRING),'.')[OFFSET(0)] AS DATETIME)
@@ -36,14 +37,15 @@ SELECT
   END AS MainChannel,
   Name,
   OwnerId,
-  CASE 
-  WHEN Phone LIKE '%.%' THEN CONCAT('+',SPLIT(Phone,'.')[OFFSET(0)])
-  WHEN Phone LIKE '+' THEN Phone
-  WHEN (Phone LIKE '%0%' OR Phone LIKE '%1%' OR Phone LIKE '%2%'  OR Phone LIKE '%3%'  OR Phone LIKE '%4%'  OR Phone LIKE '%5%'  OR Phone LIKE '%6%' OR Phone LIKE '%7%' OR Phone LIKE '%8%'  OR Phone LIKE '%9%')
-  AND NOT REGEXP_CONTAINS(Phone, r'[A-Z]') AND Phone NOT LIKE '%+%'
-   THEN CONCAT('+',Phone)
-  ELSE Phone
-  END AS Phone, 
+  -- CASE 
+  -- WHEN Phone LIKE '%.%' THEN CONCAT('+',SPLIT(Phone,'.')[OFFSET(0)])
+  -- WHEN Phone LIKE '+' THEN Phone
+  -- WHEN (Phone LIKE '%0%' OR Phone LIKE '%1%' OR Phone LIKE '%2%'  OR Phone LIKE '%3%'  OR Phone LIKE '%4%'  OR Phone LIKE '%5%'  OR Phone LIKE '%6%' OR Phone LIKE '%7%' OR Phone LIKE '%8%'  OR Phone LIKE '%9%')
+  -- AND NOT REGEXP_CONTAINS(Phone, r'[A-Z]') AND Phone NOT LIKE '%+%'
+  --  THEN CONCAT('+',Phone)
+  -- ELSE Phone
+  -- END AS
+  Phone, 
   CASE WHEN  LENGTH(PhonePrefix) > 1 THEN  CONCAT('+',SPLIT(PhonePrefix,'.')[OFFSET(0)]) 
   ELSE PhonePrefix 
   END AS PhonePrefix, 

@@ -96,7 +96,7 @@ lower(IsDeleted) as IsDeleted,
   LastNameLocalExtra,
   LastCURequestDate,
   LastCUUpdateDate,
-  MailingCity,
+  REPLACE(MailingCity,' 	',',') as MailingCity,
   MailingCountry,
   MailingState,
   REPLACE(MailingStreet,'\t ',',') as MailingStreet, --escape 
