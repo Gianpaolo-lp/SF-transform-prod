@@ -31,9 +31,9 @@ C AS (
         CountrySession,
         CAST(EMISSIONE_DTA AS TIMESTAMP) AS TransactionDate__c,
         CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) AS DATE
-    FROM `lp-datalake-prod.181871398.addtocart_export` a 
+    FROM ${ref('M12_AbandonedCart_Clean')} a 
         LEFT JOIN M11_NAVIGATO_FINAL_3 b 
-            ON (a.SessionsID = b.SessionsID AND a.CookieID = b.CookieID)
+            ON (a.SessionsID = b.SessionsID AND cast(a.CookieID as string) = b.CookieID)
         LEFT JOIN ${ref('sal_transazioni')} c 
             ON (SPLIT(a.ProductSku, '_')[OFFSET(0)] = c.ARTICOLO_COD AND b.ROL_ID = c.CLIE_DWH_COD AND CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) = CAST(c.EMISSIONE_DTA AS DATE))
     WHERE CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) >= CAST(CURRENT_DATE()-7 AS STRING)
@@ -63,7 +63,6 @@ C1 AS (
     GROUP BY 1,2,3,5,6,8,9,DATE
 ),
 ContactAbandonedCart__c_to_add AS (
-    /* dobbiamo buttare via i record con mese (della data) < mese di oggi -1 */
     SELECT 
         *
     FROM C
@@ -72,6 +71,4 @@ ContactAbandonedCart__c_to_add AS (
     UserID__c IS NOT NULL
 )
 /* storicizzazione */ 
-SELECT * FROM ContactAbandonedCart__c_to_add
-UNION DISTINCT 
-SELECT * FROM lp-datalake-prod.181871398.ContactAbandonedCart__c
+SELECT * FROM ContactAbandonedCart__c_to_add WHERE Date >= CURRENT_DATE() - 7

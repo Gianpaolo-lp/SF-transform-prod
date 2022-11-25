@@ -1,0 +1,20 @@
+config {
+  type: "incremental"
+}
+
+SELECT
+SessionsID,
+CookieID,
+EventAction,
+ProductSku,
+Rank,
+UserID,
+CONCAT(SUBSTRING(DATE, 1, 4),"-",SUBSTRING(DATE, 5, 2),"-",SUBSTRING(DATE, 7, 2)) AS DATE,
+CONCAT(SUBSTRING(cast(CURRENT_DATE() as string), 1, 4),"-",SUBSTRING(cast(CURRENT_DATE() as string), 6, 2),"-",SUBSTRING(cast(CURRENT_DATE() as string), 9, 2)) AS RefDate,
+ProductName,
+Hostname,
+NavigationLanguage,
+BrowserLanguage,
+CountrySession
+FROM lp-datalake-prod.181871398.addtowishlist_export
+

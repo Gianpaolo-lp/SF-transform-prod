@@ -1,0 +1,12 @@
+config {
+  type: "table"
+}
+
+WITH A AS(
+select
+*,
+row_number() over(partition by SessionsID,CookieID,ProductSku order by DATE,RefDate desc) as number
+
+ FROM ${ref('M12_AddToWishlist_History')} )
+
+ select * EXCEPT(number) from A where number=1 AND EXTRACT(MONTH FROM CAST(RefDate AS DATE)) = EXTRACT(MONTH FROM CURRENT_DATE()) AND EXTRACT(YEAR FROM CAST(RefDate AS DATE)) = EXTRACT(YEAR FROM CURRENT_DATE()) 
