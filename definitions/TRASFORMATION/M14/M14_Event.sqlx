@@ -1,0 +1,59 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+WITH M14_EVENT AS (
+    SELECT
+        Id,
+        inStoreApp__c,
+        BAA_EndDateTime__c,
+        BAA_StartDateTime__c,
+        virtualApp__c,
+        CHECKINSTORE__R_TAXISHOPCODE__C,
+        CAST(StartDateTime AS TIMESTAMP) AS StartDateTime,
+        CAST(EndDateTime AS TIMESTAMP) AS EndDateTime,
+        CreatedById,
+        CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+        Description,
+        HistoryKey__c,
+        LastModifiedById,
+        CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+        OwnerId,
+        Subject,
+        WhoId,
+        No_Show__c,
+        Campaign__c,
+        Who_Name,
+        BAA_email__c,
+        BAA_phone_prefix__c,
+        BAA_phone__c,
+        BAA_title__c,
+        BAA_SessionCountry__c,
+        BAA_SessionLanguage__c
+    FROM ${ref('Event')}
+    WHERE LastModifiedDate >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+)
+SELECT 
+distinct
+    a.*,
+    b.rolid__c,
+    c.PersonID__c,
+    c.name AS Owner_name,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM M14_EVENT a 
+    LEFT JOIN ${ref('M13_Contact')} b 
+        ON a.whoid = b.Id 
+    LEFT JOIN ${ref('M13_User')} c 
+        ON a.OwnerId = c.Id
+
+WHERE b.INS_DTA > '1990-01-01' AND c.INS_DTA > '1990-01-01'
+
+
+
+
+
+
+
+

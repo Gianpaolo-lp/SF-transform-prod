@@ -1,0 +1,114 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+WITH M14_CAMPAIGN_MEMBER AS (
+    SELECT 
+        MemberStore__c,
+        MemberStore__r_TaxiShopCode__c,
+        DoNotContact__c,
+        CASE 
+        WHEN Campaign_FakeCampaign__c = 'true' THEN CampaignId
+        END AS FakeCampaign,
+        CASE 
+        WHEN Campaign_FakeCampaign__c = 'true' THEN Campaign_ParentId
+        END AS CampaignId,
+        City,
+        ClientelingStatus__c,
+        CommunicationSent__c,
+        CompanyOrAccount,
+        ContactId,
+        ControlGroup__c,
+        Country,
+        CreatedById,
+        CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+        Delighted__c,
+        Email,
+        CASE WHEN 
+        EntryDate__c = '' THEN NULL
+        ELSE CAST(EntryDate__c AS DATE)  END AS EntryDate__c,
+        EventConfirmation__c,
+        CASE WHEN ExitDate__c = '' THEN NULL
+        ELSE CAST(ExitDate__c AS DATE) END AS ExitDate__c,
+        FirstName,
+        CASE WHEN FirstRespondedDate  = '' THEN NULL
+        ELSE CAST(FirstRespondedDate AS DATE) END AS FirstRespondedDate,
+        GuestAgeRange__c,
+        GuestArea__c,
+        GuestGender__c,
+        GuestLanguage__c,
+        GuestNationality__c,
+        GuestScoreDetails__c,
+        GuestScore__c,
+        GuestStatus__c,
+        HasOptedOutOfEmail,
+        HasResponded,
+        HistoryKey__c,
+        Id,
+        LastModifiedById,
+        CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+        LastName,
+        LeadOrContactId,
+        LeadOrContactOwnerId,
+        LocalGuestFormulaCheckbox__c,
+        LocalGuest__c,
+        MobilePhone,
+        Name,
+        Phone,
+        PostalCode,
+        ReadOnly__c,
+        SaleAssistant__c,
+        Salutation,
+        State,
+        Status,
+        StoreOfCompetenceArea__c,
+        StoreOfCompetence__r_TaxiShopCode__c,
+        StoreOfCompetenceCountry__c,
+        StoreOfCompetence__c,
+        Street,
+        Title,
+        Type,
+        Updated__c,
+        Campaign_FakeCampaign__c,
+        Campaign_ParentID,
+        GuestCluster__c,
+        GuestClusterGroup__c
+    FROM lp-datalake-prod.Salesforce.CampaignMember_S1
+    ORDER BY HistoryKey__c
+),
+FMT AS (
+    SELECT 
+        HistoryKey__c,
+        max(ExitDate__c) as exitdate__c,
+        MAX (ENTRYDATE__C) AS ENTRYDATE__C,
+    FROM M14_CAMPAIGN_MEMBER
+    GROUP BY HistoryKey__c
+),
+FMT2 AS (
+    SELECT
+        Id,   
+        PersonId__c
+    FROM ${ref('M13_User')}
+    where INS_DTA > '1990-01-01'
+),
+PRE_FINAL AS (
+    SELECT  
+        a.* EXCEPT(EntryDate__c, ExitDate__c),
+        COALESCE(b.EntryDate__c, a.EntryDate__c) AS EntryDate__c,
+        COALESCE(b.ExitDate__c, a.ExitDate__c) AS ExitDate__c,
+        c.PersonId__c
+    FROM M14_CAMPAIGN_MEMBER a
+        LEFT JOIN FMT b 
+            ON a.HistoryKey__c = b.HistoryKey__c 
+            OR (a.HistoryKey__c is null 
+            and b.HistoryKey__c is null) 
+         LEFT JOIN FMT2 c 
+             ON a.SaleAssistant__c = c.Id
+)
+SELECT 
+DISTINCT
+    *,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM PRE_FINAL

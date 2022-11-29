@@ -58,7 +58,7 @@ WITH M14_CAMPAIGN1 AS (
         /* in order to create the history */
         CURRENT_DATE() AS INPUT_DATE
     FROM ${ref('Campaign')}
-    WHERE RecordTypeName = 'Marketing Campaign'
+    WHERE RecordType_Name = 'Marketing Campaign'
     /* where per escludere i campi della deleted */ AND 
     (CAST(IsDeleted AS BOOL) = FALSE OR CAST(DoNotDownload__c AS BOOL) = FALSE)
 )

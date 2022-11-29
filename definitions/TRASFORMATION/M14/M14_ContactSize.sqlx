@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT 
+    Id,
+    CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+    CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate ,
+    BottomsKid__c,
+    BottomsLady__c,
+    BottomsMan__c,
+    OuterwearKid__c,
+    OuterwearLady__c,
+    OuterwearMan__c,
+    ShoesKid__c,
+    ShoesLady__c,
+    ShoesMan__c,
+    TopsKid__c,
+    TopsLady__c,
+    TopsMan__c,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('ContactSize')}
+WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 

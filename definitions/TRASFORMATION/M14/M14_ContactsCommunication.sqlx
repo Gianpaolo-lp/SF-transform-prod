@@ -1,0 +1,71 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+    Id,
+    Contact_ID__c,
+    Channel__c,
+    CreatedById,
+    Sender_ID__c,
+    Sender_login__c,
+    From_alias__c,
+    Reply_to__c,
+    Recipient__c,
+    Use_newsletter_template__c,
+    MagNewsTemplate__c,
+    Message_type__c,
+    HistoryKey__c,
+    -- With_Attachment__c, missing
+    -- Attachment_Name__c,
+    Http_response__c,
+    Message_ID__c,
+    Bounce_type__c,
+    Open__c,
+    Clicked__c,
+    Spam__c,
+    Status__c,
+    Client_detail__c,
+    Client_name__c,
+    Client_type__c,
+    Geolocation__c,
+    -- Id_salesforce_campaign__c,
+    Newsletter_name__c,
+    System_detail__c,
+    System_name__c,
+    System_type__c,
+    Tracked__c,
+    Sender__c,
+    Subject__c,
+    Body_content__c,
+    CASE 
+        WHEN Template_ID__c IN ('', 'null') THEN NULL
+        ELSE CAST(Template_ID__c AS STRING)
+        END AS Template_ID__c,
+    -- CASE 
+    --     WHEN Id_delivery__c IN ('', 'null') THEN NULL
+    --     ELSE CAST(Id_delivery__c AS STRING)
+    --     END AS Id_delivery__c,
+    -- CASE 
+    --     WHEN Id_delivery_details__c IN ('', 'null') THEN NULL
+    --     ELSE CAST(Id_delivery_details__c AS STRING)
+    --     END AS Id_delivery_details__c,
+    IF(NULL, CAST(CreatedDate AS TIMESTAMP), NULL) AS CreatedDate,
+    IF(NULL, CAST(LastModifiedDate AS TIMESTAMP), NULL) AS LastModifiedDate,
+    IF(NULL, CAST(Last_opened_date__c AS TIMESTAMP), NULL) AS Last_opened_date__c,
+    IF(NULL, CAST(Last_clicked_date__c AS TIMESTAMP), NULL) AS Last_clicked_date__c,
+    -- CAMPAIGN_MN_ID__C,
+    -- CAMPAIGN_MN_NAME__C,
+    CAMPAIGN_TOPIC__C,
+    CARBON_COPY__C,
+    CATEGORY__C,
+    CONVERTED__C,
+    DATABASE_ID__C,
+    EMBEDDED_IMAGES__C,
+    HIDE_IN_CONTACT_HISTORY__C,
+    IF(NULL, CAST(LAST_CONVERSION_DATE__C AS TIMESTAMP), NULL) AS LAST_CONVERSION_DATE__C,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('ContactsCommunication')}
+WHERE LastModifiedDate >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 

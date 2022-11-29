@@ -1,0 +1,40 @@
+config {
+  type: "table",
+  tags: 'M14'
+}
+
+SELECT
+    Id,
+    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(0)] AS Campaign_ID,
+    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(1)] AS Email_Marketing_Cloud,
+    CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+    CAST(LastModifiedDate AS TIMESTAMP) LastModifiedDate,
+    et4ae5__CampaignMemberId__c,
+    et4ae5__Clicked__c,
+    et4ae5__Contact__c,
+    et4ae5__Contact_ID__c,
+    CreatedById,
+    CAST(et4ae5__DateBounced__c AS TIMESTAMP) AS et4ae5__DateBounced__c,
+    CAST(et4ae5__DateOpened__c AS TIMESTAMP) AS et4ae5__DateOpened__c,
+    CAST(et4ae5__DateSent__c AS TIMESTAMP) AS et4ae5__DateSent__c,
+    et4ae5__DateUnsubscribed__c,
+    et4ae5__Email__c,
+    et4ae5__Email_Asset_ID__c,
+    et4ae5__Email_ID__c,
+    Name,
+    et4ae5__FromAddress__c,
+    et4ae5__FromName__c,
+    et4ae5__HardBounce__c,
+    LastModifiedById,
+    et4ae5__NumberOfUniqueClicks__c,
+    et4ae5__MergeId__c,
+    et4ae5__NumberOfTotalClicks__c,
+    et4ae5__Opened__c,
+    et4ae5__SendDefinition__c,
+    et4ae5__SoftBounce__c,
+    et4ae5__SubjectLine__c,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('IndividualEmailResult')}
+WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
+

@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+    Id,
+    LoroPianaCode__c,
+    CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+    CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+    LastModifiedById,
+    Name,
+    DestinationForAction__c,
+    ListGroup__c,
+    CASE   
+        WHEN Order__c IN ('', 'null') THEN NULL 
+        ELSE Order__c
+        END AS Order__c,
+    ReadOnly__c,
+    isActive__c,
+    /* in order to create the history */
+    -- CURRENT_DATE() AS INS_DTA
+FROM ${ref('List__c')}
+-- WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
+

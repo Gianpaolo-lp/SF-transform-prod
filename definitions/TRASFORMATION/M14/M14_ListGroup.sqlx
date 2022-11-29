@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+    Id,
+    Code__c,
+    CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+    CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate,
+    Icon__c,
+    Name,
+    Other__c,
+    /* in order to create the history */
+   -- CURRENT_DATE() AS INS_DTA
+FROM ${ref('ListGroup__c')}
