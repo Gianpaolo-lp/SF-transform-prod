@@ -14,13 +14,26 @@
         {
           "name": "production_schedule",
           "cron": "33 17 * * *",
-           "tags": [
+          "tags": [
             "M01"
           ],
           "options": {
             "includeDependencies": true
           },
           "disabled": true
+        },
+        {
+          "name": "Marketing_Automation",
+          "cron": "0 17 * * *",
+          "tags": [
+            "M11",
+            "M12"
+          ],
+          "options": {
+            "includeDependencies": true,
+            "includeDependents": true
+          },
+          "disabled": false
         }
       ],
       "gitRef": "master"
