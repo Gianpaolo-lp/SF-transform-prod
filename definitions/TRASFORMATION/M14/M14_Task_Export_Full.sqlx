@@ -1,0 +1,227 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+WITH
+/* it selects some information from the M13_USER table */
+USER AS (
+	SELECT
+		id AS CreatedById,
+		PersonId__c AS ActUser_PersonID,
+		Name AS ActUser_FullName,
+		ShopCode__c AS ActUser_StoreID
+	FROM ${ref('M13_User')}
+	--WHERE INS_DTA > '1990-01-01'
+),
+/* CHECK PERSONID_EXT_COD to do: 20220929 */
+/* it selects some information from the ang_operatori table */
+OPERATORI AS (
+	/*
+	SELECT DISTINCT 
+		FIRST_VALUE(PERSONID_EXT_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS COD_PERSONID_EXT,
+		FIRST_VALUE(NOME_OPERATORE_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS NOME_OPE,
+		FIRST_VALUE(COGNOME_OPERATORE_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS COGNOME_OPE,
+    	NEGZ_COD
+	FROM `Oracle.ang_operatori`
+	*/
+	SELECT DISTINCT 
+		PERSONID_EXT_COD AS COD_PERSONID_EXT,
+		NOME_OPERATORE_COD  AS NOME_OPE,
+		COGNOME_OPERATORE_COD AS cognome_ope,
+		NEGZ_COD
+	FROM ${ref('ang_operatori')}
+	WHERE PERSONID_EXT_COD IS NOT NULL
+),
+/* it selects some information from the ang_negz table */
+NEGOZI AS (
+	SELECT DISTINCT
+		NEGZ_COD,		
+		a.AREA_GEO_DES AS des_area_geo,
+		b.STATO_DES AS DES_STATO,
+		NEGZ_DES AS DES_NEGZ
+	FROM `Oracle.ang_negz` a 
+		/* it joins with and_areegeo in order to get the stato_des field */
+		LEFT JOIN ${ref('ang_areegeo')} b 
+			ON a.STATO_COD = b.STATO_COD
+),
+/* operatori + negozi */
+OPERATORI_NEGOZI AS (
+	SELECT DISTINCT
+		a.*,
+		b.* EXCEPT(NEGZ_COD)
+	FROM OPERATORI a 
+		INNER JOIN NEGOZI b 
+			ON a.NEGZ_COD = b.NEGZ_COD
+	WHERE COD_PERSONID_EXT IS NOT NULL
+),
+/* it selects some information from the cst_customer table */
+CST_CUSTOMER AS (
+	SELECT  
+		CLIE_DWH_COD,
+		SA_PERSONID_EXT_COD,
+		SA2_PERSONID_EXT_COD,
+		NEGZ_OPERATORE_RIF_COD,
+		NEGZ_OPERATORE2_RIF_COD,
+		NOME_COD AS CLI_NOME,
+		CGNM_COD AS CLI_CGN,
+		TEL_CELL_COD AS CLI_TEL_CEL,
+		EMAIL_COD AS CLI_EMAIL
+	FROM ${ref('cst_customer')}
+),
+/* it selects some information from the M13_CONTACT table */
+CONTACT AS (
+	SELECT 
+		id,
+		rolid,
+		AccountId AS FIRST_STORE,
+		OwnerId AS FIRST_SA,
+		SecondDedicatedStore AS SECOND_STORE,
+		SecondSaleAssistantOfComp AS SECOND_SA
+	FROM ${ref('M13_Contact')}
+),
+/* it adds some cst_customer table fields into the contact table */
+CONTACT_CUSTOMER AS (	
+		select 
+			a.id,
+			a.rolid,					
+			a.FIRST_STORE,
+			a.FIRST_SA,
+			a.SECOND_STORE,
+			a.SECOND_SA,
+			b.CLIE_DWH_COD,
+			b.CLI_NOME,
+			b.CLI_CGN,
+			b.CLI_TEL_CEL,
+			b.CLI_EMAIL,
+			b.SA_PERSONID_EXT_COD,
+			b.SA2_PERSONID_EXT_COD,
+			b.NEGZ_OPERATORE_RIF_COD,
+			b.NEGZ_OPERATORE2_RIF_COD,
+			COALESCE(b.SA_PERSONID_EXT_COD, a.FIRST_SA) AS JOIN_KEY 
+		FROM CONTACT a
+		LEFT JOIN CST_CUSTOMER b
+			ON CAST(b.CLIE_DWH_COD AS STRING) = a.rolid
+		WHERE a.rolid IS NOT NULL
+),
+/* it adds some operatori table and negozi table fields into the contact_customer table */
+/* contact_customer_HASH_2 */
+CONTACT_CUSTOMER_OPERATORI_NEGOZI AS (
+	SELECT
+		a.*,
+		COALESCE(a.SA_PERSONID_EXT_COD, a.first_sa) AS cod_personid_ext,
+		COALESCE(a.SA2_PERSONID_EXT_COD,a.second_sa) AS cod_personid_ext_2,
+		b.nome_ope,
+		b.cognome_ope,
+		c.nome_ope AS NOME_OPE2,
+		c.cognome_ope AS COGNOME_OPE2,
+		d.des_area_geo,
+		d.des_stato,
+		d.des_negz,
+		e.des_area_geo AS DES_AREA_GEO2,
+		e.des_stato AS DES_STATO2,
+		e.des_negz AS DES_NEGZ2
+	FROM CONTACT_CUSTOMER a 
+		LEFT JOIN OPERATORI b 
+			ON a.JOIN_KEY = CAST(b.COD_PERSONID_EXT AS string) 
+				AND a.JOIN_KEY IS NOT NULL
+				AND a.FIRST_STORE = b.NEGZ_COD
+		LEFT JOIN OPERATORI c
+			ON a.JOIN_KEY = CAST(c.COD_PERSONID_EXT as string) 
+    			AND a.JOIN_KEY IS NOT NULL
+    			AND a.SECOND_STORE = c.NEGZ_COD
+		LEFT JOIN NEGOZI d 
+			ON a.JOIN_KEY = d.NEGZ_COD
+		LEFT JOIN NEGOZI e 
+			ON a.JOIN_KEY = e.NEGZ_COD
+),
+/* it adds three fields starting from the M13_TASK table */
+TASK AS (
+    SELECT
+        a.* ,
+        b.ActUser_PersonID,
+        b.ActUser_StoreID
+    FROM ${ref('M14_Task_Export_Qlik')} a
+    INNER JOIN USER b
+		ON a.CreatedById = b.CreatedById
+),
+
+/* TASK_FIN_HASH */
+TASK4 AS (
+SELECT 
+	a.* EXCEPT (CampaignID, ClientelingList__c, HistoryKey__c, ActUser_StoreID, Status,ActUser_PersonID),
+	b.*,
+	c.NOME_OPE AS ActUser_Name,
+	c.COGNOME_OPE AS ActUser_Surname,
+	c.DES_NEGZ AS ActStore_Descr,
+	c.DES_AREA_GEO AS ActStore_Area,
+	c.DES_STATO AS ActStore_Stato,
+	c.NEGZ_COD AS ActStore_ID
+FROM (
+	SELECT
+		*
+	FROM TASK3  
+	WHERE 
+		CAST(ActivityDate AS DATE) >= CAST(CONCAT(EXTRACT(YEAR FROM CURRENT_DATE())-1, '-', EXTRACT(MONTH FROM CURRENT_DATE()), '-01') AS DATE)
+		AND CAST(ActivityDate AS DATE) <= CURRENT_DATE()
+	) a
+	LEFT JOIN USER b
+		ON a.CreatedById = b.CreatedById 
+	LEFT JOIN OPERATORI_NEGOZI c
+		ON b.ActUser_PersonID = CAST(c.COD_PERSONID_EXT AS STRING)
+		AND b.ActUser_StoreID = c.NEGZ_COD
+)
+/* M14_CONTACT_TODAY */
+SELECT
+	rolID AS Client_ROL_ID,       
+	cli_nome AS Client_Name,
+	cli_cgn AS Client_Last_Name,     
+	cli_tel_cel AS Mobile_Phone,     
+	cli_email AS Email,                          
+	Subject AS Subject,             
+	Macro_Type AS Macro_Type,     
+	Type AS Type,             
+	EventConfirmation__c AS Event_Confirmation,     
+	CheckInMissedPurchase__c AS Check_in_Missed_Purchase,     
+	CheckInStore__r_TaxiShopCode__c AS CheckInStore__r_TaxiShopCode__c,         
+	ContactedThroughGaisho__c AS Contacted_through_Gaisho,     
+	ConsignmentStatus__c AS Consignment_Status,    
+	ContactedThroughConcierge__c AS E_Concierge,    
+	RemoteSellingStatus__c AS Remote_Selling_Status,     
+	Description AS Description,                                   
+	CreatedDate AS Created_Date,   
+	LastModifiedDate AS Last_Modified_Date,    
+	ActivityDate AS Activity_Date,    
+	ActUser_PersonID AS Activity_SA_Employee_ID,  
+	ActUser_FullName AS Activity_SA_Full_Name,   
+	ActUser_Name AS Activity_SA_Name,    
+	ActUser_Surname AS Activity_SA_Last_Name,    
+	ActStore_ID AS Activity_Store_ID,    
+	ActStore_Descr AS Activity_Store, 
+	ActStore_Area  AS Activity_Store_Region,     
+	ActStore_Stato AS Activity_Store_Country,    
+	first_sa AS SA_of_Comp_1_Employee_ID,    
+	nome_ope AS SA_of_Comp_1_Name,
+	cognome_ope AS SA_of_Comp_1_Last_Name,
+	second_sa AS SA_of_Comp_2_Employee_ID,  
+	nome_ope2 AS SA_of_Comp_2_Name,   
+	cognome_ope2 AS SA_of_Comp_2_Last_Name,    
+	first_sa AS Store_of_Comp_1_ID,   
+	des_negz AS Store_of_Comp_1,    
+	des_area_geo AS Region_Store_of_Comp_1,    
+	des_stato AS Country_Store_of_Comp_1,    
+	second_store AS Store_of_Comp_2_ID,     
+	des_negz2 AS Store_of_Comp_2,    
+	des_area_geo2 AS Region_Store_of_Comp_2,     
+	des_stato2 AS Country_Store_of_Comp_2 
+FROM TASK4 a 
+	LEFT JOIN CONTACT_CUSTOMER_OPERATORI_NEGOZI b 
+		ON a.WhoId = b.id
+WHERE RolId IS NOT NULL
+	/* it selects data from 1 year ago (first day, this month, last year) */
+	AND CAST(ActivityDate AS DATE) >= CAST(CONCAT(EXTRACT(YEAR FROM CURRENT_DATE())-1, '-', EXTRACT(MONTH FROM CURRENT_DATE()), '-01') AS DATE)
+
+
+
+
+

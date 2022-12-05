@@ -34,7 +34,7 @@ SELECT
     et4ae5__SoftBounce__c,
     et4ae5__SubjectLine__c,
     /* in order to create the history */
-    CURRENT_DATE() AS INS_DTA
+    --CURRENT_DATE() AS INS_DTA
 FROM ${ref('IndividualEmailResult')}
-WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
+--WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
 

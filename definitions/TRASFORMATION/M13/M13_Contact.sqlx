@@ -48,8 +48,7 @@ DISTINCT
     RegularHolidayDestinations__c,
     CAST(RolId AS STRING) AS RolId__c,
     SECONDSALEASSISTANTOFCOMP AS SecondSAoC_ID,
-    SECONDSALEASSISTANTOFCOMP AS SecondSaleAssistantOfCompetence,
-    ---C.SecondSaleAssistantOfCompetence,
+    SecondSaleAssistantOfCompetence,
     SecondDedicatedStore,
     SoftBeverages__c,
     SoftBeveragesOther__c,
@@ -58,7 +57,7 @@ DISTINCT
     TypeOfServiceOther__c,
     UnionID,
     S1.WeChatSource,
-    CURRENT_DATE() AS INS_DTA
+   -- CURRENT_DATE() AS INS_DTA
 FROM ${ref('Contact_S')} S
 left join ${ref('Contact_S1')} S1 using(Id) 
 left join lp-datalake-prod.Salesforce.Contact C using(Id) 

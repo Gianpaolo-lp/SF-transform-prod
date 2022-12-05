@@ -1,0 +1,13 @@
+config {
+  type: "table"
+}
+
+SELECT 
+
+*
+
+FROM ${ref('M13_Task')}
+order by Id
+
+
+

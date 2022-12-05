@@ -56,7 +56,7 @@ WITH M14_CAMPAIGN1 AS (
         Theme__c,
         Type,
         /* in order to create the history */
-        CURRENT_DATE() AS INPUT_DATE
+       -- CURRENT_DATE() AS INPUT_DATE
     FROM ${ref('Campaign')}
     WHERE RecordType_Name = 'Marketing Campaign'
     /* where per escludere i campi della deleted */ AND 

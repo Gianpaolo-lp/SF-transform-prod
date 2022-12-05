@@ -1,5 +1,6 @@
 config {
-  type: "table"
+  type: "table",
+  tags:'M12'
 }
 
 WITH M11_NAVIGATO_FINAL_3 AS (
@@ -7,7 +8,8 @@ WITH M11_NAVIGATO_FINAL_3 AS (
         * EXCEPT(SessionsID),
         FIRST_VALUE(SessionsID) OVER (PARTITION BY SessionsID ORDER BY SessionsID, CookieID, userid) AS SessionsID
     FROM ${ref('M11_NAVIGATO_FULL')}
-),
+)
+,
 C AS (
     SELECT DISTINCT
         CONCAT(a.SessionsID,'_', a.CookieID,'-', ProductSku) AS AbandonedCartKey__c,
@@ -15,11 +17,11 @@ C AS (
         a.CookieID AS CookieID__c,
         EventAction,
         SPLIT(ProductSku, '_')[OFFSET(0)] AS Product__r_LoroPianaCode__c,
-        REPLACE(ProductSku, '_', '-') AS ProductColorCode__c_RecordID__,
+        REPLACE(ProductSku, '_', '-') AS ProductColorCode__c_RecordID__c,
         Rank,
         a.UserID AS UserID__c,
         a.UserID AS Guest__r_SapId__c,
-        CAST(CONCAT(CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE ), 'T00:00:00') AS TIMESTAMP) AS EventDate__c,
+        CAST(Date as TIMESTAMP) AS EventDate__c,
         ProductName,
         CASE 
             WHEN ARTICOLO_COD IS NULL THEN 'FALSE'
@@ -30,14 +32,15 @@ C AS (
         BrowserLanguage,
         CountrySession,
         CAST(EMISSIONE_DTA AS TIMESTAMP) AS TransactionDate__c,
-        CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) AS DATE
+        Date
     FROM ${ref('M12_AbandonedCart_Clean')} a 
         LEFT JOIN M11_NAVIGATO_FINAL_3 b 
             ON (a.SessionsID = b.SessionsID AND cast(a.CookieID as string) = b.CookieID)
         LEFT JOIN ${ref('sal_transazioni')} c 
-            ON (SPLIT(a.ProductSku, '_')[OFFSET(0)] = c.ARTICOLO_COD AND b.ROL_ID = c.CLIE_DWH_COD AND CAST(CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) AS DATE) = CAST(c.EMISSIONE_DTA AS DATE))
-    WHERE CONCAT(SUBSTRING(a.DATE, 1, 4),"-",SUBSTRING(a.DATE, 5, 2),"-",SUBSTRING(a.DATE, 7, 2)) >= CAST(CURRENT_DATE()-7 AS STRING)
-    
+            ON (SPLIT(a.ProductSku, '_')[OFFSET(0)] = c.ARTICOLO_COD AND b.ROL_ID = c.CLIE_DWH_COD AND cast(Date as date) = c.EMISSIONE_DTA)
+    WHERE 
+    Date >= CAST(CURRENT_DATE()-7 AS STRING)
+   
 ),
 C1 AS (
     SELECT DISTINCT
@@ -46,12 +49,12 @@ C1 AS (
         CookieID__c,
         MAX(EventAction) AS EventAction__c,
         Product__r_LoroPianaCode__c,
-        ProductColorCode__c_RecordID__,
+        ProductColorCode__c_RecordID__c,
         MAX(Rank) AS Rank__c,
         UserID__c,
         Guest__r_SapId__c,
         MAX(EventDate__c) as EventDate__c,
-        MAX(ProductName) AS ProductName__c,
+        MAX(ProductName) AS ProductNameEcommerce__c,
         MAX(ItemPurchased__c) as ItemPurchased__c,
         MAX(HostName) AS Hostname__c,
         MAX(NavigationLanguage) AS NavigationLanguage__c,
@@ -65,10 +68,10 @@ C1 AS (
 ContactAbandonedCart__c_to_add AS (
     SELECT 
         *
-    FROM C
+    FROM C1
     WHERE 
         /* carico solamente user_id <> nullo, user_id non nullo se il cliente si è loggato, nullo altrimenti */
     UserID__c IS NOT NULL
 )
 /* storicizzazione */ 
-SELECT * FROM ContactAbandonedCart__c_to_add WHERE Date >= CURRENT_DATE() - 7
+SELECT *EXCEPT(DATE) FROM ContactAbandonedCart__c_to_add WHERE cast(Date as date) >= CURRENT_DATE() - 7

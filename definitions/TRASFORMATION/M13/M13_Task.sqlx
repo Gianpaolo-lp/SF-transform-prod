@@ -61,6 +61,6 @@ DISTINCT
     WhoId,
     isFullDay__c,
     newHistoryKey__c ,
-    CURRENT_DATE() AS INS_DTA
+   -- CURRENT_DATE() AS INS_DTA
 FROM ${ref('Task_S1')}
 --- WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)

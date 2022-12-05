@@ -1,0 +1,56 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT 
+    BoutiqueID__c AS COD_NEGZ_TAXI,
+    Boutique_Area__c,
+    Boutique_Country__c,
+    Boutique_Name__c,
+    CSAT_Open_Text__c,
+    CSAT_Value__c AS VAL_CSAT,
+    Channel__c AS DES_CONTACT_CHANNEL,
+    Contact__c,
+    CAST(CreatedDate AS DATE) AS DTA_INS,
+    Discovered_Loro_Piana_Open_Text__c,
+    Discovered_Loro_Piana__c,
+    Driver1_Value__c AS VAL_DRIVER1,
+    REPLACE(REPLACE(Driver1_Why__c, '\\n', ''), 'null', '') AS DES_DRIVER1_WHY,
+    Driver2_Value__c AS VAL_DRIVER2,
+    REPLACE(REPLACE(Driver2_Why__c, '\\n', ''), 'null', '') AS DES_DRIVER2_WHY,
+    Driver3_Value__c AS VAL_DRIVER3,
+    REPLACE(REPLACE(Driver3_Why__c, '\\n', ''), 'null', '') AS DES_DRIVER3_WHY,
+    Driver4_Value__c AS VAL_DRIVER4,
+    REPLACE(REPLACE(Driver4_Why__c, '\\n', ''), 'null', '') AS DES_DRIVER4_WHY,
+    REPLACE(REPLACE(Driver5_UserDef__c, '\\n', ''), 'null', '') AS DES_DRIVER5_USERDEF,
+    Driver5_Value__c AS VAL_DRIVER5,
+    REPLACE(REPLACE(Driver5_Why__c, '\\n', ''), 'null', '') AS DES_DRIVER5_WHY,
+    Id AS COD_QUALTRICS_EVENT,
+    -- IsDeleted,
+    CAST(LastModifiedDate AS DATE) AS DTA_VARZ,
+    NPS_Value__c AS VAL_NPS,
+    NPS_Why__c AS DES_NPS_WHY,
+    Name,
+    Purchase_Channel__c,
+    TRIM(CAST(ROL_ID__c AS STRING)) AS CLI_DWH_KEY,
+    ResponseID__c AS COD_RESPONSE,
+    SA_FirstName__c,
+    SA_ID__c AS COD_OPE,
+    SA_LastName__c,
+    CAST(StartDate__c AS DATE) AS DTA_START,
+    CAST(SPLIT(TransactionDate__c,'/')[OFFSET(2)] ||'-' ||SPLIT(TransactionDate__c,'/')[OFFSET(1)] ||'-' || SPLIT(TransactionDate__c,'/')[OFFSET(0)] as TIMESTAMP) AS TransactionDate__c,
+    TransactionID__c AS ID_SCN,
+    "How do you rate your experience in the Loro Piana Store" AS DES_CSAT,
+	"How did you find the atmosphere in our store" AS DES_DWKB_DRIVER1,
+	"How did you find the attractiveness of our products" AS DES_DWKB_DRIVER2,
+	"Did you find what you were looking for" AS DES_DWKB_DRIVER3,
+	"How would you rate your experience with" AS DES_DWKB_DRIVER4,
+	"Other customer notes" AS DES_DWKB_DRIVER5,
+    /* in order to create the history */
+    CURRENT_DATE() AS INS_DTA
+FROM ${ref('Qualtrics_Event')}
+-- WHERE CAST(LastModifiedDate AS DATE)   >= CURRENT_DATE() -5
+
+
+

@@ -32,7 +32,7 @@ WITH M14_EVENT AS (
         BAA_SessionCountry__c,
         BAA_SessionLanguage__c
     FROM ${ref('Event')}
-    WHERE LastModifiedDate >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+   -- WHERE LastModifiedDate >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
 )
 SELECT 
 distinct
@@ -41,14 +41,14 @@ distinct
     c.PersonID__c,
     c.name AS Owner_name,
     /* in order to create the history */
-    CURRENT_DATE() AS INS_DTA
+    -- CURRENT_DATE() AS INS_DTA
 FROM M14_EVENT a 
     LEFT JOIN ${ref('M13_Contact')} b 
         ON a.whoid = b.Id 
     LEFT JOIN ${ref('M13_User')} c 
         ON a.OwnerId = c.Id
 
-WHERE b.INS_DTA > '1990-01-01' AND c.INS_DTA > '1990-01-01'
+--WHERE b.INS_DTA > '1990-01-01' AND c.INS_DTA > '1990-01-01'
 
 
 

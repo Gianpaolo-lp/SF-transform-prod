@@ -1,11 +1,12 @@
 config {
-  type: "incremental"
+  type: "incremental",
+  tags:'M12'
 }
 
 
 SELECT
 SessionsID,
-CookieID,
+CAST(CookieID AS INTEGER) AS CookieID,
 EventAction,
 ProductSku,
 Rank,
@@ -18,3 +19,4 @@ NavigationLanguage,
 BrowserLanguage,
 CountrySession
 FROM lp-datalake-prod.181871398.addtocart_export
+

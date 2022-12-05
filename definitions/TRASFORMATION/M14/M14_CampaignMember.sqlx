@@ -90,7 +90,7 @@ FMT2 AS (
         Id,   
         PersonId__c
     FROM ${ref('M13_User')}
-    where INS_DTA > '1990-01-01'
+    --where INS_DTA > '1990-01-01'
 ),
 PRE_FINAL AS (
     SELECT  
@@ -110,5 +110,5 @@ SELECT
 DISTINCT
     *,
     /* in order to create the history */
-    CURRENT_DATE() AS INS_DTA
+    --CURRENT_DATE() AS INS_DTA
 FROM PRE_FINAL

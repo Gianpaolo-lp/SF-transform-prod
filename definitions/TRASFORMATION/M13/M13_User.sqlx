@@ -1,6 +1,6 @@
 
 config {
-  type: "incremental",
+  type: "table",
   tags: 'M13'
 }
 
@@ -18,6 +18,6 @@ SELECT
     ManagerPersonId__c, 
     ManagerCurrentShopCode__c, 
     ManagerCurrentShopName__c,
-    CURRENT_DATE() AS INS_STA
+    --CURRENT_DATE() AS INS_STA
 FROM ${ref('User')}
 --WHERE cast(LastModifiedDate AS DATE) >= CURRENT_DATE() - 5

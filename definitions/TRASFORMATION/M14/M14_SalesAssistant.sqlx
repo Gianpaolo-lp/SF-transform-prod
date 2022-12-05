@@ -1,0 +1,29 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT 
+    Available__c,
+    CreatedById,
+    CAST(CreatedDate AS TIMESTAMP)  CreatedDate,
+    EconciergeAvailability__c,
+    EmailSaleAssistant__c,
+    Id,
+    IsDeleted,
+    Languages__c,
+    LastModifiedById,
+    CAST(LastModifiedDate AS TIMESTAMP) LastModifiedDate,
+    LastReferencedDate,
+    LastViewedDate,
+    MobileSaleAssistant__c,
+    Name,
+    OwnerId,
+    SalesAssistantId__c,
+    ShopCode__c,
+    SystemModstamp,
+    taxishopcode__c,
+    User__c,
+    /* in order to create the history */
+    -- CURRENT_DATE() AS INS_DTA
+FROM  ${ref('SalesAssistant')}

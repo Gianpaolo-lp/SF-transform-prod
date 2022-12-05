@@ -1,10 +1,11 @@
 config {
-  type: "incremental"
+  type: "incremental",
+  tags:'M12'
 }
 
 SELECT
 SessionsID,
-CookieID,
+cast(CookieID as integer) as CookieID,
 EventAction,
 ProductSku,
 Rank,

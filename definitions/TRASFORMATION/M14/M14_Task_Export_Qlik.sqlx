@@ -1,0 +1,72 @@
+config {
+  type: "view"
+}
+
+with TASK as (
+SELECT
+  *
+FROM ${ref('M14_Task_Export')}
+order by WhoId, CreatedById, Subject, HistoryKey__c, ActivityDate, LastModifiedDate),
+
+
+TASK_2 AS (
+SELECT
+  * EXCEPT(ActivityDate, TYPE, DESCRIPTION,Id),
+  Id as CampaignID,
+  FIRST_VALUE(ActivityDate) OVER (PARTITION BY whoId ORDER BY ActivityDate DESC) AS ActivityDate,
+  CASE
+  WHEN STRPOS(type, '->') > 0 THEN ARRAY_REVERSE(SPLIT(type, '->'))[OFFSET(0)]
+  WHEN type IN ('CHECK IN', 'In Store','CHECKIN','In-Store','InStore') THEN 'Check In'
+  WHEN type = 'MESSAGE' THEN 'SMS'
+  WHEN type = 'Other' then 'Other Delighting'
+  END AS TYPE,
+  CASE 
+  WHEN type = 'Check In' then  'Check In'
+  WHEN type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contract'
+  ELSE 'Delighting'
+  END AS MACRO_TYPE,
+  REPLACE(Description, '\\n', '') AS Description
+FROM TASK)
+
+	SELECT
+		* ,
+    --EXCEPT(Code__c, flag, codice, ParentID, CampaignID),
+		CASE
+			WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
+			WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+			WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+			WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
+			WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
+			WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
+			WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
+			WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
+			WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
+			WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
+			WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
+			WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
+			WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+			WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+			WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+			WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+			WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
+			WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
+			END AS CampaignID,
+		CASE
+			WHEN ConsignmentFirstStatusUpdate__c IS NULL THEN 0
+			ELSE 1
+			END AS Consignment_Contact,
+		CASE
+			WHEN RemoteSellingFirstStatusUpdate__c IS NULL THEN 0
+			ELSE 1
+			END AS RemoteSelling_Contact,
+		CASE
+			WHEN ConsignmentSecondStatusUpdate__c IS NULL THEN 0
+			ELSE 1
+			END AS Consignment_Activities,
+		CASE
+			WHEN RemoteSellingSecondStatusUpdate__c IS NULL THEN 0
+			ELSE 1
+			END AS Remote_Activities
+	FROM TASK_2 
+
+

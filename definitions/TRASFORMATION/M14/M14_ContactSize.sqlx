@@ -20,6 +20,6 @@ SELECT
     TopsLady__c,
     TopsMan__c,
     /* in order to create the history */
-    CURRENT_DATE() AS INS_DTA
+    -- CURRENT_DATE() AS INS_DTA
 FROM ${ref('ContactSize')}
-WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+-- WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 

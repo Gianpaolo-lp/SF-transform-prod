@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT 
+    Id,
+    CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
+    CreatedById,
+    CreatedByProfileId,
+    CreatedByProfileName,
+    ContactId,
+    Field,
+    IsDeleted,
+    OldValue,
+    NewValue,
+
+    --CURRENT_DATE() AS INS_DTA
+FROM ${ref('ContactHistory_S')}
+--WHERE CAST(CreatedDate AS DATE) >= CURRENT_DATE() -5 
