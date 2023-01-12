@@ -1,0 +1,52 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT distinct
+C.CampaignId as CAMP_ID_COD,
+C.ClientelingStatus__c AS CLIENTELING_STATUS_DES,
+C.CommunicationSent__c AS COMM_SENT_COD,
+C.EntryDate__c AS ENTRY_DTE,
+C.ExitDate__c AS EXIT_DTE,
+C.FirstRespondedDate AS FIRST_RESP_DTE,
+C.HasOptedOutOfEmail AS OPTED_OUT_COD,
+C.Status AS STATUS_DES,
+C.Type AS TYPE_DES,
+C.ContactId AS CONTACT_COD,
+C.SaleAssistant__c AS SA_COD,
+c.PersonId__c AS PERS_ID_COD,
+C.GuestScore__c AS GUEST_SCORE_COD,
+c.GuestStatus__c AS GUEST_STATUS_COD,
+C.StoreOfCompetenceArea__c AS SOC_AREA_DES,
+C.StoreOfCompetenceCountry__c AS SOC_COUNTRY_DES,
+C.StoreOfCompetence__r_TaxiShopCode__c AS SOC_COD,
+c.LocalGuest__c as LOCAL_GUEST_COD,
+C.Country AS COUNTRY_COD,
+C.Email AS EMAIL_DES,
+C.Title AS TITLE_DES,
+c.FirstName AS NAME_COD,
+C.LastName AS LASTNAME_COD,
+C.GuestAgeRange__c AS GUEST_AGE_RANGE_COD,
+C.GuestArea__c AS GUEST_AREA_DES,
+C.GuestGender__c AS GUEST_GENDER_COD,
+C.GuestNationality__c AS GUEST_NATIONALITY_COD,
+C.City AS CITY_DES,
+C.Delighted__c AS DELIGHTED_COD,
+c.DoNotContact__c AS NOT_CONTACT_COD,
+C.MemberStore__r_TaxiShopCode__c AS MEMBER_SHOP_COD,
+C.GuestLanguage__c AS GUEST_LANG_COD,
+C.FakeCampaign AS FAKE_CAMP_COD,
+C.GuestCluster__c AS GUEST_CLUST_COD,
+C.Id AS CAMP_MEM_COD
+ FROM ${ref('M14_CampaignMember')}  c
+ LEFT JOIN ${ref('Contact_S')}  s on c.ContactId = s.Id
+ WHERE split(RolId,'.')[offset(0)] IN
+ (SELECT
+ CAST(CLIE_DWH_COD AS STRING)
+ FROM ${ref('cst_customer')} 
+ WHERE STATO_COD = 'CN'
+ AND PRIVACY_MARK_FLG = '1'
+ AND PRIVACY_PROF_FLG = '1'
+--  AND NEWSLETTER_CONSENT_FLG = '1'
+ AND PIPLCONSENT_FLG = '1')

@@ -1,18 +1,19 @@
 config {
-  type: "view"
+  type: "table"
 }
 
 with TASK as (
 SELECT
   *
 FROM ${ref('M14_Task_Export')}
-order by WhoId, CreatedById, Subject, HistoryKey__c, ActivityDate, LastModifiedDate),
+order by WhoId, CreatedById, Subject, HistoryKey, ActivityDate, LastModifiedDate),
 
 
 TASK_2 AS (
 SELECT
   * EXCEPT(ActivityDate, TYPE, DESCRIPTION,Id),
   Id as CampaignID,
+  Id,
   FIRST_VALUE(ActivityDate) OVER (PARTITION BY whoId ORDER BY ActivityDate DESC) AS ActivityDate,
   CASE
   WHEN STRPOS(type, '->') > 0 THEN ARRAY_REVERSE(SPLIT(type, '->'))[OFFSET(0)]
@@ -29,8 +30,7 @@ SELECT
 FROM TASK)
 
 	SELECT
-		* ,
-    --EXCEPT(Code__c, flag, codice, ParentID, CampaignID),
+		* EXCEPT(CampaignID,Id),
 		CASE
 			WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
 			WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
@@ -51,20 +51,21 @@ FROM TASK)
 			WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
 			WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
 			END AS CampaignID,
+		Id,
 		CASE
-			WHEN ConsignmentFirstStatusUpdate__c IS NULL THEN 0
+			WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
 			ELSE 1
 			END AS Consignment_Contact,
 		CASE
-			WHEN RemoteSellingFirstStatusUpdate__c IS NULL THEN 0
+			WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
 			ELSE 1
 			END AS RemoteSelling_Contact,
 		CASE
-			WHEN ConsignmentSecondStatusUpdate__c IS NULL THEN 0
+			WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
 			ELSE 1
 			END AS Consignment_Activities,
 		CASE
-			WHEN RemoteSellingSecondStatusUpdate__c IS NULL THEN 0
+			WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
 			ELSE 1
 			END AS Remote_Activities
 	FROM TASK_2 

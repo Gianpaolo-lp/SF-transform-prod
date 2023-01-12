@@ -1,0 +1,31 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+cs.Id AS ID_COD,
+BottomsKid__c AS BOTTOMS_KID_COD,
+BottomsLady__c AS BOTTOMS_LADY_COD,
+BottomsMan__c AS BOTTOMS_MAN_COD,
+OuterwearKid__c AS OUTERWEAR_KID_COD,
+OuterwearLady__c AS OUTERWEAR_LADY_COD,
+OuterwearMan__c AS OUTERWEAR_MAN_COD,
+ShoesKid__c AS SHOES_KID_COD,
+ShoesLady__c  AS SHOES_LADY_COD,
+ShoesMan__c AS SHOES_MAN_COD,
+TopsKid__c AS TOPS_KID_COD,
+TopsLady__c AS TOPS_LADY_COD,
+TopsMan__c AS TOPS_MAN_COD,
+from ${ref('M14_ContactSize')} as cs
+inner join ${ref('M13_Contact')} as c
+on cs.Id = c.ContactSize
+WHERE SPLIT(rolid__c,'.')[OFFSET(0)]in
+(SELECT
+CAST(CLIE_DWH_COD AS STRING)
+FROM ${ref('cst_customer')} 
+WHERE PRIVACY_MARK_FLG = '1'
+AND PRIVACY_PROF_FLG = '1'
+AND PIPLCONSENT_FLG = '1'
+-- AND NEWSLETTER_CONSENT_FLG = '1'
+AND STATO_COD = 'CN')

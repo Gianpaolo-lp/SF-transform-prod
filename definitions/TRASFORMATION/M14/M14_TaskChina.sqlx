@@ -1,0 +1,48 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT DISTINCT
+Activity_Date as ACTIVITY_DTE,
+Check_in_Missed_Purchase as MISS_PURCH_DES,
+Consignment as CONSIGN_COD,
+CreatedById as CREATED_BY_ID_COD,
+E_Concierge as CONTACTED_CONCIERGE_COD,
+Contacted_through_Gaisho as CONTACTED_GAISHO_COD,
+Description as DESCRIPTION_DES,
+Event_Confirmation as EVENT_CONFIRMATION_COD,
+ExperienceRating as EXPERIENCE_RATING_COD,
+isFullDay as FULL_DAY_COD,
+RemoteSelling as REMOTE_SELLING_COD,
+Status as STATUS_COD,
+Subject as SUBJECT_DES,
+TYPE as TYPE_DES,
+WhoId as CONTACT_COD,
+Task_Id as TASK_COD,
+Activity_SA_Employee_ID as PERSON_ID_COD,
+Campaign as CAMP_ID_COD,
+MACRO_TYPE as MACRO_TYPE_COD,
+CheckInStore_TaxiShopCode as CHECKIN_SHOP_COD,
+Activity_Store_ID as ACTIVE_STORE_ID_COD,
+Consignment_Status as CONS_STATUS_COD,
+Remote_Selling_Status as REMOTE_SELL_STATUS_COD,
+Consignment_Contact as CONS_CONTACT_COD,
+RemoteSelling_Contact as REMOTE_SELL_CONTACT_COD,
+Consignment_Activities as CONS_ACTIVITIES_COD,
+Remote_Activities as REMOTE_ACTIVITES_COD,
+RemoteSellingFirstStatusUpdate as REMOTE_SELLING_FIRST_UPDATE_DTE,
+RemoteSellingSecondStatusUpdate as REMOTE_SELLING_SECOND_UPDATE_DTE,
+ConsignmentFirstStatusUpdate as CONS_SELLING_FIRST_UPDATE_DTE,
+ConsignmentSecondStatusUpdate as CONS_SELLING_SECOND_UPDATE_DTE
+ FROM ${ref('M14_Task_Export_Full')}
+ WHERE split(rolId,'.')[offset(0)] in (
+   SELECT
+   CAST(CLIE_DWH_COD AS STRING)
+   FROM ${ref('cst_customer')}
+   WHERE PIPLCONSENT_FLG = '1'
+   AND PRIVACY_MARK_FLG = '1'
+   AND PRIVACY_PROF_FLG = '1'
+  --  AND NEWSLETTER_CONSENT_FLG = '1'
+   AND STATO_COD = 'CN'
+ ) 

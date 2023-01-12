@@ -1,0 +1,48 @@
+config {
+  type: "table"
+}
+
+
+
+WITH USER2 AS (
+  SELECT
+  * EXCEPT(ShopCode__c),
+  ShopCode__c as cod_negz_taxi,
+  MANSIONE_EN_DES AS mansione_en,
+  CASE 
+  WHEN EMAIL_COD LIKE '@' THEN EMAIL_COD
+  ELSE NULL
+  END AS email_sa
+  FROM ${ref('M13_User')}
+  LEFT JOIN ${ref('ang_dipendentinegstr')}
+  ON PersonId__c = CAST(PERSONID_EXT_COD AS STRING)
+  WHERE isActive = "True"
+),
+
+NEGOZI AS (
+  SELECT
+  NEGZ_COD AS cod_negz_taxi,
+  N.AREA_GEO_DES AS des_area_geo,
+  A.STATO_DES AS des_stato,
+  T.MACRO_CANALE_DES AS des_macro_canale ,
+  T.CANALE_COD AS cod_canale 
+  FROM ${ref('ang_negz')} N
+  LEFT JOIN  ${ref('ang_tipounit')} T
+  LEFT JOIN ${ref('ang_areegeo')} A
+  USING(STATO_COD)
+  USING(TIPO_UNIT_COD)
+)
+
+SELECT
+*
+FROM USER2 U LEFT JOIN NEGOZI USING(cod_negz_taxi)
+WHERE PersonId__c <> '' 
+AND cod_negz_taxi <> ''
+AND CAST(JobCode__c AS STRING) <> ''
+AND name <> "Gianluca Carletti" 
+AND des_macro_canale = "RETAIL"
+
+
+
+
+

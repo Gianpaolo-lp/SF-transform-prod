@@ -9,10 +9,12 @@ WITH M14_CAMPAIGN_MEMBER AS (
         MemberStore__r_TaxiShopCode__c,
         DoNotContact__c,
         CASE 
-        WHEN Campaign_FakeCampaign__c = 'true' THEN CampaignId
+        WHEN Campaign_FakeCampaign__c = 'True' THEN CampaignId
+        else ''
         END AS FakeCampaign,
         CASE 
-        WHEN Campaign_FakeCampaign__c = 'true' THEN Campaign_ParentId
+        WHEN Campaign_FakeCampaign__c = 'True' THEN Campaign_ParentId
+        else CampaignId
         END AS CampaignId,
         City,
         ClientelingStatus__c,
@@ -73,7 +75,8 @@ WITH M14_CAMPAIGN_MEMBER AS (
         Campaign_FakeCampaign__c,
         Campaign_ParentID,
         GuestCluster__c,
-        GuestClusterGroup__c
+        GuestClusterGroup__c,
+        
     FROM lp-datalake-prod.Salesforce.CampaignMember_S1
     ORDER BY HistoryKey__c
 ),

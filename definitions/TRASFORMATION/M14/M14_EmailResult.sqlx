@@ -5,8 +5,14 @@ config {
 
 SELECT
     Id,
-    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(0)] AS Campaign_ID,
-    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(1)] AS Email_Marketing_Cloud,
+    CASE WHEN CONTAINS_SUBSTR (et4ae5__TriggeredSendDefinitionName__c, '|') THEN
+    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(0)]
+    ELSE NULL
+    END AS Campaign_ID,
+    CASE WHEN CONTAINS_SUBSTR (et4ae5__TriggeredSendDefinitionName__c, '|') THEN
+    SPLIT(et4ae5__TriggeredSendDefinitionName__c, '|') [OFFSET(1)] 
+    ELSE et4ae5__TriggeredSendDefinitionName__c 
+    END AS Email_Marketing_Cloud,
     CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
     CAST(LastModifiedDate AS TIMESTAMP) LastModifiedDate,
     et4ae5__CampaignMemberId__c,
@@ -14,9 +20,18 @@ SELECT
     et4ae5__Contact__c,
     et4ae5__Contact_ID__c,
     CreatedById,
-    CAST(et4ae5__DateBounced__c AS TIMESTAMP) AS et4ae5__DateBounced__c,
-    CAST(et4ae5__DateOpened__c AS TIMESTAMP) AS et4ae5__DateOpened__c,
-    CAST(et4ae5__DateSent__c AS TIMESTAMP) AS et4ae5__DateSent__c,
+    CASE WHEN et4ae5__DateBounced__c <> '' AND et4ae5__DateBounced__c IS NOT NULL THEN
+    CAST(et4ae5__DateBounced__c AS TIMESTAMP)
+    ELSE NULL
+    END AS et4ae5__DateBounced__c,
+    CASE WHEN et4ae5__DateOpened__c <> '' AND et4ae5__DateBounced__c IS NOT NULL THEN 
+    CAST(et4ae5__DateOpened__c AS TIMESTAMP)
+    ELSE NULL
+    END AS et4ae5__DateOpened__c,
+    CASE WHEN et4ae5__DateSent__c <> '' AND et4ae5__DateBounced__c IS NOT NULL THEN 
+    CAST(et4ae5__DateSent__c AS TIMESTAMP)
+    ELSE NULL
+    END AS et4ae5__DateSent__c,
     et4ae5__DateUnsubscribed__c,
     et4ae5__Email__c,
     et4ae5__Email_Asset_ID__c,

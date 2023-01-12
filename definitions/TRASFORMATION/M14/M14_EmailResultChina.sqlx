@@ -1,0 +1,29 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT  distinct
+Campaign_ID as CAMPAIGN_ID_COD,
+et4ae5__Opened__c as OPENED_COD,
+et4ae5__Clicked__c as CLICKED_COD,
+et4ae5__NumberOfUniqueClicks__c as UNIQUE_CLICKS_NUM,
+et4ae5__DateOpened__c as OPENED_DTE,
+et4ae5__DateSent__c as SENT_DTE,
+et4ae5__DateUnsubscribed__c as UNSUBSCRIBED_DTE,
+et4ae5__HardBounce__c as BOUNCE_HARD_COD,
+et4ae5__SoftBounce__c as BOUNCE_SOFT_COD,
+e.Id as ID_COD,
+et4ae5__Contact__c as CONTACT_COD
+FROM ${ref('M14_EmailResult')}  e
+INNER JOIN ${ref('Contact_S')} C ON et4ae5__Contact__c = C.Id
+WHERE SPLIT(RolId,'.')[OFFSET(0)] IN
+(SELECT
+  CAST(CLIE_DWH_COD AS STRING)
+  FROM ${ref('cst_customer')}
+  WHERE PRIVACY_MARK_FLG = '1'
+  AND PRIVACY_PROF_FLG = '1'
+  AND PIPLCONSENT_FLG = '1'
+  -- AND NEWSLETTER_CONSENT_FLG = '1'
+  AND STATO_COD = 'CN'
+)

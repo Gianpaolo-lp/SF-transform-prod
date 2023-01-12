@@ -1,0 +1,59 @@
+config {
+  type: "table",
+  tags: "M13"
+}
+
+SELECT DISTINCT
+split(RolId__c,'.')[OFFSET(0)] AS CUST_COD,
+GuestType AS GUEST_TYPE_COD,
+Celebrity AS CELEBRITY_COD,
+CelebrityOther AS CELEBRITY_OTHER_COD,
+Occupation__c AS OCCUPATION_DES,
+OccupationOther__c AS OCCUPATION_OTHER_DES,
+Industry__c AS INDUSTRY_DES,
+IndustryOther__c AS INDUSTRY_OTHER_DES,
+HobbiesAndInterests__c AS HOBBIES_INTEREST_DES,
+HobbiesAndInterestsOther__c AS HOBBIES_INTEREST_OTHER_DES,
+CompanyName__c AS COMPANY_NAME_DES,
+Philanthropy__c AS PHIL_DES,
+PhilanthropyCharity__c AS PHIL_CHARITY_DES,
+PhilanthropyClub__c AS PHIL_CLUB_DES,
+SoftBeverages__c AS BEVERAGES_DES,
+SoftBeveragesOther__c AS BEVERAGES_OTHER_DES,
+SoftBeveragesDislikes__c AS BEVERAGES_DISLIKE_DES,
+RegularBusinessDestinations__c AS BUSINESS_DEST_DES,
+RegularHolidayDestinations__c AS HOLIDAY_DEST_DES,
+CoffeeTea__c AS COFFEE_TEA_DES,
+CoffeeTeaOther__c AS COFFEE_TEA_OTHER_DES,
+CoffeeTeaDislikes__c AS COFFEE_TEA_DISLIKE_DES,
+CarbonatedBeverages__c as CARB_BEVERAGES_DES,
+CarbonatedBeveragesOther__c as CARB_BEVERAGES_OTHER_DES,
+CarbonatedBeveragesDislikes__c as CARB_BEVERAGES_DISLIKE_DES,
+AlcoholicBeverages__c as ALCOHOL_BEVERAGES_DES,
+AlcoholicBeveragesOther__c AS ALCOHOL_BEVERAGES_OTHER_DES,
+AlcoholicBeveragesDislikes__c AS ALCOHOL_BEVERAGES_DISLIKE_DES,
+TypeOfService__c AS SERVICE_TYPE_DES,
+TypeOfServiceOther__c AS OTHER_SERVICE_TYPE_DES,
+EngagementSuggestions__c AS ENGAGEMENT_SUGG_DES,
+EngagementSuggestionsOther__c AS ENGAGEMENT_SUGG_OTHER_DES,
+EngagementSuggestionsWhy__c AS ENGAGEMENT_SUGG_WHY_DES,
+Partner__c AS PARTNER_COD,
+Children__c AS CHILDREN_COD,
+Grandchildren__c AS GRANDCHILDREN_COD,
+Pets__c AS PETS_COD,
+ContactSize AS CONTACT_SIZE_COD,
+Canceled AS CANCELED_COD,
+Id AS CONTACT_COD,
+FromWeChat AS WECHAT_COD,
+WeChatSource AS WECHAT_SOURCE_COD,
+MarketingLanguage__c AS MARKETING_LANG_COD
+from ${ref('M13_Contact')} 
+where SPLIT(rolid__c,'.')[OFFSET(0)] in
+(SELECT
+CAST(CLIE_DWH_COD AS STRING)
+FROM ${ref('cst_customer')} 
+WHERE PRIVACY_MARK_FLG = '1'
+AND PRIVACY_MARK_FLG = '1'
+AND PIPLCONSENT_FLG = '1'
+-- AND NEWSLETTER_CONSENT_FLG = '1'
+AND STATO_COD = 'CN')

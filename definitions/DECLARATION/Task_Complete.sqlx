@@ -2,5 +2,5 @@ config {
   type: "declaration",
   database: "lp-datalake-prod",
   schema: "Salesforce",
-  name: "Qualtrics_event_trans",
+  name: "Task_Complete",
 }

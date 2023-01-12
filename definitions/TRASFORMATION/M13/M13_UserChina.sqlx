@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  tags: "M13"
+}
+
+SELECT
+CreatedDate as CREATED_DTE,
+Id as ID_COD,
+isActive as IS_ACTIVE_COD,
+LastModifiedDate as LAST_MODIFIED_DTE,
+PersonId__c as PERSON_ID_COD
+FROM ${ref('M13_User')}

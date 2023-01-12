@@ -1,4 +1,3 @@
-
 config {
   type: "table",
   tags: 'M13'
@@ -7,7 +6,10 @@ config {
 SELECT 
     Name,
     Id,   
-    CAST(CAST(IF(PersonId__c='nd' OR PersonId__c LIKE 'SEDE%' OR PersonId__c LIKE 'SPECIAL%', NULL, PersonId__c) AS INT) AS STRING FORMAT '00000000') AS PersonId__c, 
+    CASE WHEN CONTAINS_SUBSTR(PersonId__c,'Test') = False THEN
+    CAST(CAST(IF(PersonId__c='nd' OR PersonId__c LIKE 'SEDE%' OR PersonId__c LIKE 'SPECIAL%', NULL, PersonId__c) AS INT) AS STRING FORMAT '00000000')
+    ELSE NULL
+    END AS PersonId__c, 
     JobCode__c, 
     JobDescription__c, 
     ShopCode__c, 
@@ -17,7 +19,5 @@ SELECT
     isActive, 
     ManagerPersonId__c, 
     ManagerCurrentShopCode__c, 
-    ManagerCurrentShopName__c,
-    --CURRENT_DATE() AS INS_STA
+    ManagerCurrentShopName__c
 FROM ${ref('User')}
---WHERE cast(LastModifiedDate AS DATE) >= CURRENT_DATE() - 5

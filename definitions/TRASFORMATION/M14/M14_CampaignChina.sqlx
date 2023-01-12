@@ -1,0 +1,33 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+Channel__c as CHANNEL_DES,
+CreatedDate as CREATION_DTE,
+Description as DESCRIPTION_DES,
+EndDate as END_DTE,
+Id as CAMP_COD,
+Name as NAME_DES,
+NumberOfContacts as CONTACTS_NUM,
+Region__c as REGION_COD,
+StartDate as START_DTE,
+Status as STATUS_DES,
+SubType__c as SUBTYPE_DES,
+Type as TYPE_DES,
+BudgetedCost as BUDGET_COST_VAL,
+Other__c as OTHER_COD,
+Recurring__c as RECURRING_COD,
+Flag_Recurring as RECURRING_FLG,
+ActualCost as ACTUAL_COST_VAL,
+ParentId as PARENT_ID_COD,
+Theme__c as THEME_DES,
+Language__c as LANGUAGE_DES,
+Delighting__c as DELIGHTED_COD,
+DelightingDescription__c as DELIGHTED_DES,
+Code__c AS CODE_COD,
+OmitClick__c AS OMIT_CLIK_COD,
+FakeCampaign__c AS FAKE_CAMP_COD,
+UTMParameter__c AS UTM_COD
+FROM ${ref('M14_Campaign')}

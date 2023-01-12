@@ -1,0 +1,14 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+SELECT
+  a.negz_cod,
+  a.tipo_unit_cod,
+  b.canale_cod,
+  b.tipo_unit_des
+FROM ${ref('ang_negz')} a
+  LEFT JOIN ${ref('ang_tipounit')} b
+    ON	a.tipo_unit_cod = b.tipo_unit_cod
+

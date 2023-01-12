@@ -7,19 +7,53 @@ SELECT
     Id,
     CAST(CreatedDate AS TIMESTAMP) AS CreatedDate,
     CAST(LastModifiedDate AS TIMESTAMP) AS LastModifiedDate ,
-    BottomsKid__c,
-    BottomsLady__c,
-    BottomsMan__c,
-    OuterwearKid__c,
-    OuterwearLady__c,
-    OuterwearMan__c,
-    ShoesKid__c,
-    ShoesLady__c,
-    ShoesMan__c,
-    TopsKid__c,
-    TopsLady__c,
-    TopsMan__c,
-    /* in order to create the history */
-    -- CURRENT_DATE() AS INS_DTA
+    CASE WHEN CONTAINS_SUBSTR(BottomsKid__c, '	') THEN
+    REPLACE(BottomsKid__c, '	',',')
+    ELSE BottomsKid__c 
+    END AS BottomsKid__c,
+    CASE WHEN CONTAINS_SUBSTR(BottomsLady__c, '	') THEN
+    REPLACE(BottomsLady__c, '	',',')
+    ELSE BottomsLady__c 
+    END AS BottomsLady__c,
+    CASE WHEN CONTAINS_SUBSTR(BottomsMan__c, '	') THEN
+    REPLACE(BottomsMan__c, '	',',')
+    ELSE BottomsMan__c 
+    END AS BottomsMan__c,
+    CASE WHEN CONTAINS_SUBSTR(OuterwearKid__c, '	') THEN
+    REPLACE(OuterwearKid__c, '	',',')
+    ELSE OuterwearKid__c 
+    END AS OuterwearKid__c,
+    CASE WHEN CONTAINS_SUBSTR(OuterwearLady__c, '	') THEN
+    REPLACE(OuterwearLady__c, '	',',')
+    ELSE OuterwearLady__c 
+    END AS OuterwearLady__c,
+    CASE WHEN CONTAINS_SUBSTR(OuterwearMan__c, '	') THEN
+    REPLACE(OuterwearMan__c, '	',',')
+    ELSE OuterwearMan__c 
+    END AS OuterwearMan__c,
+    CASE WHEN CONTAINS_SUBSTR(ShoesKid__c, '	') THEN
+    REPLACE(ShoesKid__c, '	',',')
+    ELSE ShoesKid__c 
+    END AS ShoesKid__c,
+    CASE WHEN CONTAINS_SUBSTR(ShoesLady__c, '	') THEN
+    REPLACE(ShoesLady__c, '	',',')
+    ELSE ShoesLady__c 
+    END AS ShoesLady__c,
+    CASE WHEN CONTAINS_SUBSTR(ShoesMan__c, '	') THEN
+    REPLACE(ShoesMan__c, '	',',')
+    ELSE ShoesMan__c 
+    END AS ShoesMan__c,
+    CASE WHEN CONTAINS_SUBSTR(TopsKid__c, '	') THEN
+    REPLACE(TopsKid__c, '	',',')
+    ELSE TopsKid__c 
+    END AS TopsKid__c,
+    CASE WHEN CONTAINS_SUBSTR(TopsLady__c, '	') THEN
+    REPLACE(TopsLady__c, '	',',')
+    ELSE TopsLady__c 
+    END AS TopsLady__c,
+    CASE WHEN CONTAINS_SUBSTR(TopsMan__c, '	') THEN
+    REPLACE(TopsMan__c, '	',',')
+    ELSE TopsMan__c 
+    END AS TopsMan__c
 FROM ${ref('ContactSize')}
--- WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+

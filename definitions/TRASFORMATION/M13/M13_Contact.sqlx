@@ -7,8 +7,10 @@ SELECT
 DISTINCT
     S.AccountId,
     AlcoholicBeverages__c,
+    AlcoholicBeveragesOther__c,
     AlcoholicBeveragesDislikes__c,
     Canceled,
+    CarbonatedBeverages__c,
     CarbonatedBeveragesOther__c,
     CarbonatedBeveragesDislikes__c,
     Celebrity,

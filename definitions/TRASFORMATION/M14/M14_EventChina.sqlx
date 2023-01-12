@@ -1,0 +1,32 @@
+config {
+  type: "table",
+  tags: "M14"
+}
+
+SELECT
+Campaign__c as CAMP_ID_COD,
+CHECKINSTORE__R_TAXISHOPCODE__C as CHECKIN_SHOP_COD,
+Description as EVENT_DES,
+No_Show__c as NO_SHOW_COD,
+Subject as SUBJ_DES,
+StartDateTime as START_DTE,
+EndDateTime as END_DTE,
+PersonID__c as PERSON_ID_COD,
+Id as EVENT_COD,
+BAA_EndDateTime__c as BAA_END_DTE,
+BAA_StartDateTime__c as BAA_START_DTE,
+virtualApp__c as VIRTUAL_APP_COD,
+inStoreApp__c as IN_STORE_APP_COD,
+Owner_name as OWNER_COD,
+WhoId as CONTACT_COD
+FROM ${ref('M14_Event')}
+WHERE SPLIT(rolid__c,'.')[OFFSET(0)] in
+(SELECT
+CAST(CLIE_DWH_COD AS STRING)
+FROM ${ref('cst_customer')} 
+WHERE
+PRIVACY_MARK_FLG = '1'
+AND PRIVACY_PROF_FLG = '1'
+AND PIPLCONSENT_FLG = '1'
+-- AND NEWSLETTER_CONSENT_FLG = '1'
+AND STATO_COD = 'CN')

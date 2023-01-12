@@ -39,7 +39,11 @@ SELECT
     SA_ID__c AS COD_OPE,
     SA_LastName__c,
     CAST(StartDate__c AS DATE) AS DTA_START,
-    CAST(SPLIT(TransactionDate__c,'/')[OFFSET(2)] ||'-' ||SPLIT(TransactionDate__c,'/')[OFFSET(1)] ||'-' || SPLIT(TransactionDate__c,'/')[OFFSET(0)] as TIMESTAMP) AS TransactionDate__c,
+CASE WHEN TransactionDate__c != '21*2F11*2F2018' AND TransactionDate__c != '1*2F-2F-21' THEN 
+CAST(SUBSTRING(TransactionDate__c, 7,4) || '-' || SUBSTRING(TransactionDate__c, 4,2) || '-' || SUBSTRING(TransactionDate__c, 0,2) AS TIMESTAMP)
+ELSE NULL
+END AS  TransactionDate__c,
+
     TransactionID__c AS ID_SCN,
     "How do you rate your experience in the Loro Piana Store" AS DES_CSAT,
 	"How did you find the atmosphere in our store" AS DES_DWKB_DRIVER1,
@@ -47,9 +51,16 @@ SELECT
 	"Did you find what you were looking for" AS DES_DWKB_DRIVER3,
 	"How would you rate your experience with" AS DES_DWKB_DRIVER4,
 	"Other customer notes" AS DES_DWKB_DRIVER5,
-    /* in order to create the history */
-    CURRENT_DATE() AS INS_DTA
-FROM ${ref('Qualtrics_Event')}
+D1_trans,
+D2_trans,
+D3_trans,
+D4_trans,
+D5_trans,
+D5U_trans,
+NPS_trans,
+Discover_Loro_Piana_trans,
+CSAT_trans
+FROM ${ref('Qualtrics_event_trans')}
 -- WHERE CAST(LastModifiedDate AS DATE)   >= CURRENT_DATE() -5
 
 
