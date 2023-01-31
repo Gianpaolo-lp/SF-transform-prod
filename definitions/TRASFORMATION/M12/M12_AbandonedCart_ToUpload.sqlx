@@ -1,6 +1,5 @@
 config {
-  type: "table",
-  tags:'M12'
+  type: "table"
 }
 
 WITH M11_NAVIGATO_FINAL_3 AS (

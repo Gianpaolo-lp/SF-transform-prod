@@ -1,6 +1,5 @@
 config {
-  type: "table",
-  tags:'M12'
+  type: "table"
 }
 
 WITH A AS(

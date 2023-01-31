@@ -45,6 +45,7 @@ DISTINCT
         END AS LastModifiedDate,
     MagnewsTemplate,
     OwnerId,
+    Paper_Catalog_extract__c,
     RecordTypeId,
     RemoteSellingFirstStatusUpdate,
     RemoteSellingSecondStatusUpdate,
@@ -61,6 +62,6 @@ DISTINCT
     WhoId,
     isFullDay,
     newHistoryKey,
-   -- CURRENT_DATE() AS INS_DTA
 FROM ${ref('Task_Complete')}
---- WHERE CAST(LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP)
+WHERE RecordTypeName = 'ContactHistory'
+

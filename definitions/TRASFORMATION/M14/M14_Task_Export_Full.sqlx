@@ -2,6 +2,11 @@ config {
   type: "table",
   tags: "M14"
 }
+/*
+M14_TASK:
+fino alla TASK_FIN_NEW è la QLIK
+fino alla fine è la CONTACT_HISTORY
+*/
 
 WITH
 /* it selects some information from the M13_USER table */
@@ -12,19 +17,9 @@ USER AS (
 		Name AS ActUser_FullName,
 		ShopCode__c AS ActUser_StoreID
 	FROM ${ref('M13_User')}
-	--WHERE INS_DTA > '1990-01-01'
 ),
-/* CHECK PERSONID_EXT_COD to do: 20220929 */
 /* it selects some information from the ang_operatori table */
 OPERATORI AS (
-	/*
-	SELECT DISTINCT 
-		FIRST_VALUE(PERSONID_EXT_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS COD_PERSONID_EXT,
-		FIRST_VALUE(NOME_OPERATORE_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS NOME_OPE,
-		FIRST_VALUE(COGNOME_OPERATORE_COD) OVER (PARTITION BY PERSONID_EXT_COD ORDER BY PERSONID_EXT_COD) AS COGNOME_OPE,
-    	NEGZ_COD
-	FROM `Oracle.ang_operatori`
-	*/
 	SELECT DISTINCT 
 		PERSONID_EXT_COD AS COD_PERSONID_EXT,
 		NOME_OPERATORE_COD  AS NOME_OPE,
@@ -40,7 +35,7 @@ NEGOZI AS (
 		a.AREA_GEO_DES AS des_area_geo,
 		b.STATO_DES AS DES_STATO,
 		NEGZ_DES AS DES_NEGZ
-	FROM `Oracle.ang_negz` a 
+	FROM ${ref('ang_negz')} a 
 		/* it joins with and_areegeo in order to get the stato_des field */
 		LEFT JOIN ${ref('ang_areegeo')} b 
 			ON a.STATO_COD = b.STATO_COD
@@ -73,44 +68,44 @@ CST_CUSTOMER AS (
 CONTACT AS (
 	SELECT 
 		id,
-		RolId__c,
+		RolId__c AS rolid,
 		AccountId AS FIRST_STORE,
 		OwnerId AS FIRST_SA,
 		SecondDedicatedStore AS SECOND_STORE,
 		SecondSaleAssistantOfCompetence AS SECOND_SA
-	FROM ${ref('M13_Contact')}
+  	FROM ${ref('M13_Contact')}
 ),
 /* it adds some cst_customer table fields into the contact table */
 CONTACT_CUSTOMER AS (	
-		select 
-			a.id,
-			a.RolId__c as rolid,					
-			a.FIRST_STORE,
-			a.FIRST_SA,
-			a.SECOND_STORE,
-			a.SECOND_SA,
-			b.CLIE_DWH_COD,
-			b.CLI_NOME,
-			b.CLI_CGN,
-			b.CLI_TEL_CEL,
-			b.CLI_EMAIL,
-			b.SA_PERSONID_EXT_COD,
-			b.SA2_PERSONID_EXT_COD,
-			b.NEGZ_OPERATORE_RIF_COD,
-			b.NEGZ_OPERATORE2_RIF_COD,
-			COALESCE(b.SA_PERSONID_EXT_COD, a.FIRST_SA) AS JOIN_KEY 
-		FROM CONTACT a
+    SELECT 
+      a.id,
+      a.rolid,					
+      a.FIRST_STORE,
+      a.FIRST_SA,
+      a.SECOND_STORE,
+      a.SECOND_SA,
+      b.CLIE_DWH_COD,
+      b.CLI_NOME,
+      b.CLI_CGN,
+      b.CLI_TEL_CEL,
+      b.CLI_EMAIL,
+      b.SA_PERSONID_EXT_COD,
+      b.SA2_PERSONID_EXT_COD,
+      b.NEGZ_OPERATORE_RIF_COD,
+      b.NEGZ_OPERATORE2_RIF_COD,
+      COALESCE(b.SA_PERSONID_EXT_COD, a.FIRST_SA) AS JOIN_KEY 
+    FROM CONTACT a
 		LEFT JOIN CST_CUSTOMER b
-			ON CAST(b.CLIE_DWH_COD AS STRING) = a.RolId__c
-		WHERE a.RolId__c IS NOT NULL
+			ON CAST(b.CLIE_DWH_COD AS STRING) = a.rolid
+		WHERE a.rolid IS NOT NULL
 ),
 /* it adds some operatori table and negozi table fields into the contact_customer table */
-/* contact_customer_HASH_2 */
+/* in sas: contact_customer_HASH_2 */
 CONTACT_CUSTOMER_OPERATORI_NEGOZI AS (
 	SELECT
 		a.*,
 		COALESCE(a.SA_PERSONID_EXT_COD, a.first_sa) AS cod_personid_ext,
-		COALESCE(a.SA2_PERSONID_EXT_COD,a.second_sa) AS cod_personid_ext_2,
+		COALESCE(a.SA2_PERSONID_EXT_COD, a.second_sa) AS cod_personid_ext_2,
 		b.nome_ope,
 		b.cognome_ope,
 		c.nome_ope AS NOME_OPE2,
@@ -135,46 +130,159 @@ CONTACT_CUSTOMER_OPERATORI_NEGOZI AS (
 		LEFT JOIN NEGOZI e 
 			ON a.JOIN_KEY = e.NEGZ_COD
 ),
-/* it adds three fields starting from the M13_TASK table */
-TASK AS (
+TASK0 AS (
     SELECT
-        a.* ,
-        b.ActUser_PersonID,
-        b.ActUser_StoreID
-    FROM ${ref('M14_Task_Export_Qlik')} a
-    INNER JOIN USER b
-		ON a.CreatedById = b.CreatedById
+        *,
+        ROW_NUMBER() OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate DESC, CreatedDate DESC) AS RN_AC
+    FROM ${ref('M14_Task_Export_Qlik')}
 ),
-
+TASK1 AS (
+    SELECT 
+        a.* EXCEPT(TYPE, DESCRIPTION,MACRO_TYPE ),
+        CASE
+            WHEN STRPOS(a.type, '->') > 0 THEN ARRAY_REVERSE(SPLIT(a.type, '->'))[OFFSET(0)]
+            WHEN a.type IN ('CHECK IN', 'In Store','CHECKIN','In-Store','InStore') THEN 'Check In'
+            WHEN a.type = 'MESSAGE' THEN 'SMS'
+            WHEN a.type = 'Other' then 'Other Delighting'
+            END AS TYPE,
+        CASE 
+            WHEN a.type = 'Check In' then  'Check In'
+            WHEN a.type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contract'
+            ELSE 'Delighting'
+            END AS MACRO_TYPE,
+        REPLACE(a.Description, '\\n', '') AS Description
+    FROM TASK0 a
+        WHERE RN_AC = 1
+),
+/* it adds some M13_USER fields into the TASK1 table */
+TASK2 AS (
+  SELECT
+    a.*EXCEPT(ActUser_PersonID,ActUser_StoreID),
+    b.ActUser_PersonID,
+    b.ActUser_StoreID
+  FROM TASK1 a
+    LEFT JOIN USER b
+      ON a.CreatedById = b.CreatedById
+),
+/* in sas: CAMPAIGN_LASTID */
+CAMPAIGN AS (
+	SELECT DISTINCT
+		Code__c,
+		Id AS CampaignID
+	FROM ${ref('M14_Campaign')}
+),
+TASK3_0 AS (
+    /*
+    there are several cases to handle:
+    1. HistoryKey with '_' as delimiter, it takes the second and the third part
+    2. HistoryKey with '-' as delimiter, it takes the second part
+    3. HistoryKey null, it does nothing
+    4. HistoryKey likes 'TESTHK125' and 'TESTHK124', it does nothing because they are tests
+    */
+    WITH A AS (
+        SELECT
+            a.*,
+            CONCAT(SPLIT(HistoryKey,'_')[OFFSET(1)],'_',SPLIT(HistoryKey,'_')[OFFSET(2)]) AS KEY
+        FROM TASK2 a
+        WHERE HistoryKey NOT LIKE '%-%' AND HistoryKey <> ''  AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+        ----
+        UNION ALL 
+        ----
+        SELECT
+            a.*,
+            SPLIT(HistoryKey,'-')[OFFSET(1)] AS KEY 
+        FROM TASK2 a
+        WHERE HistoryKey LIKE '%-%' AND HistoryKey <> '' AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+        ----
+        UNION ALL
+        ----
+        SELECT
+            a.*,
+            HistoryKey AS KEY
+        FROM TASK2 a
+        WHERE HistoryKey = ''
+        ----
+        UNION ALL
+        ----
+        SELECT
+            a.*,
+            HistoryKey as KEY
+        FROM TASK2 a
+        WHERE HistoryKey = 'TESTHK125' or HistoryKey = 'TESTHK124'
+    )
+    SELECT
+        a.*EXCEPT(CampaignId),
+        b.CampaignId
+    FROM A
+        LEFT JOIN CAMPAIGN b
+            ON KEY = COALESCE(Code__c,b.CampaignId)
+),
+/* in sas: TASK_FIN_NEW  */
+TASK_FIN_NEW AS (
+  SELECT
+      * EXCEPT(CampaignID),
+      CASE
+          WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
+          WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+          WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+          WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
+          WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
+          WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
+          WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
+          WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
+          WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
+          WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
+          WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
+          WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
+          WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+          WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+          WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+          WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+          WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
+          WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
+          ELSE CampaignID
+          END AS CampaignID,
+      CASE
+          WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
+          ELSE 1
+          END AS Consignment_Contact,
+      CASE
+          WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
+          ELSE 1
+          END AS RemoteSelling_Contact,
+      CASE
+          WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
+          ELSE 1
+          END AS Consignment_Activities,
+      CASE
+          WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
+          ELSE 1
+          END AS Remote_Activities
+  FROM TASK3_0
+),
 /* TASK_FIN_HASH */
 TASK4 AS (
-SELECT 
-	a.* EXCEPT ( ClientelingList, HistoryKey, ActUser_StoreID, ActUser_PersonID),
-	b.* EXCEPT (CreatedById),
-	c.NOME_OPE AS ActUser_Name,
-	c.COGNOME_OPE AS ActUser_Surname,
-	c.DES_NEGZ AS ActStore_Descr,
-	c.DES_AREA_GEO AS ActStore_Area,
-	c.DES_STATO AS ActStore_Stato,
-	c.NEGZ_COD AS ActStore_ID
-FROM (
-	SELECT
-		*
-	FROM TASK
-	WHERE 
-		CAST(ActivityDate AS DATE) >= CAST(CONCAT(EXTRACT(YEAR FROM CURRENT_DATE())-1, '-', EXTRACT(MONTH FROM CURRENT_DATE()), '-01') AS DATE)
-		AND CAST(ActivityDate AS DATE) <= CURRENT_DATE()
-	) a
-	LEFT JOIN USER b
-		ON a.CreatedById = b.CreatedById 
-	LEFT JOIN OPERATORI_NEGOZI c
-		ON b.ActUser_PersonID = CAST(c.COD_PERSONID_EXT AS STRING)
-		AND b.ActUser_StoreID = c.NEGZ_COD
+	SELECT 
+		a.* ,
+		c.NOME_OPE AS ActUser_Name,
+		c.COGNOME_OPE AS ActUser_Surname,
+		c.DES_NEGZ AS ActStore_Descr,
+		c.DES_AREA_GEO AS ActStore_Area,
+		c.DES_STATO AS ActStore_Stato,
+		c.NEGZ_COD AS ActStore_ID
+	FROM (
+		SELECT
+			*
+		FROM TASK_FIN_NEW  
+		WHERE CAST(ActivityDate AS DATE) >= CAST(CONCAT(EXTRACT(YEAR FROM CURRENT_DATE())-1, '-', EXTRACT(MONTH FROM CURRENT_DATE()), '-01') AS DATE)
+			AND CAST(ActivityDate AS DATE) <= CURRENT_DATE()
+		) a
+		LEFT JOIN OPERATORI_NEGOZI c
+			ON a.ActUser_PersonID = CAST(c.COD_PERSONID_EXT AS STRING) 
+				AND a.ActUser_StoreID = c.NEGZ_COD 
 )
-/* M14_CONTACT_TODAY */
-SELECT
-	ActUser_StoreID AS ShopCode__c,
-	ActUser_PersonID AS PersonId__c,
+/* in sas: CONTACT_HISTORY */
+SELECT DISTINCT
 	rolID AS Client_ROL_ID,       
 	cli_nome AS Client_Name,
 	cli_cgn AS Client_Last_Name,     
@@ -182,26 +290,20 @@ SELECT
 	cli_email AS Email,                          
 	Subject AS Subject,             
 	Macro_Type AS Macro_Type,     
-	Type AS Type,            
-	CampaignID as Id,
-	Campaign,
-	Consignment,
-	EventConfirmation as Event_Confirmation,
-	ExperienceRating,
-	CheckinMissedPurchase as Check_in_Missed_Purchase,     
-	CheckInStore_TaxiShopCode,         
+	Type AS Type,             
+	EventConfirmation AS Event_Confirmation,     
+	CheckInMissedPurchase AS Check_in_Missed_Purchase,     
+	CheckInStore_TaxiShopCode AS CheckInStore__r_TaxiShopCode__c,         
 	ContactedThroughGaisho AS Contacted_through_Gaisho,     
 	ConsignmentStatus AS Consignment_Status,    
 	ContactedThroughConcierge AS E_Concierge,    
-	RemoteSelling,
 	RemoteSellingStatus AS Remote_Selling_Status,     
 	Description AS Description,                                   
 	CreatedDate AS Created_Date,   
-	a.CreatedById,
 	LastModifiedDate AS Last_Modified_Date,    
 	ActivityDate AS Activity_Date,    
 	ActUser_PersonID AS Activity_SA_Employee_ID,  
-	ActUser_FullName AS Activity_SA_Full_Name,   
+	-- ActUser_FullName AS Activity_SA_Full_Name,   
 	ActUser_Name AS Activity_SA_Name,    
 	ActUser_Surname AS Activity_SA_Last_Name,    
 	ActStore_ID AS Activity_Store_ID,    
@@ -221,27 +323,11 @@ SELECT
 	second_store AS Store_of_Comp_2_ID,     
 	des_negz2 AS Store_of_Comp_2,    
 	des_area_geo2 AS Region_Store_of_Comp_2,     
-	des_stato2 AS Country_Store_of_Comp_2 ,
-	ActStore_ID,
-	isFullday,
-	Status,
-	WhoId,
-	ConsignmentFirstStatusUpdate,
-	ConsignmentSecondStatusUpdate,
-	Consignment_Contact,
-	Consignment_Activities,
-	RemoteSellingFirstStatusUpdate,
-	RemoteSellingSecondStatusUpdate,
-	RemoteSelling_Contact,
-	Remote_Activities,
-	rolid,
-	a.Id aS Task_Id
+	des_stato2 AS Country_Store_of_Comp_2,
 FROM TASK4 a 
 	LEFT JOIN CONTACT_CUSTOMER_OPERATORI_NEGOZI b 
 		ON a.WhoId = b.id
-WHERE RolId IS NOT NULL
-	/* it selects data from 1 year ago (first day, this month, last year) */
-	AND CAST(ActivityDate AS DATE) >= CAST(CONCAT(EXTRACT(YEAR FROM CURRENT_DATE())-1, '-', EXTRACT(MONTH FROM CURRENT_DATE()), '-01') AS DATE)
+WHERE b.RolId IS NOT NULL
 
 
 

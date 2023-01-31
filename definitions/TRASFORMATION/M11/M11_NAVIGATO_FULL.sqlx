@@ -3,33 +3,85 @@ config {
   tags: 'M11'
 }
 
-WITH NAVIGATO_FULL AS (
-   SELECT DISTINCT
-      sessionsID,
-      cookieID,
-      userID,
-      transactionID
-  FROM lp-datalake-prod.181871398.daily_export_loro_piana
-), 
+WITH TRANSAZIONI AS (
+    SELECT DISTINCT
+        ECO_DOC_NUM,
+        CLIENTE_COD,
+        CLIE_DWH_COD
+    FROM  ${ref('sal_transazioni')} 
+    WHERE ID_RGH_COD = 1
+        AND ECO_DOC_NUM <> ''
+),
+ANAGRAFICA_CLIENTI AS (
+    SELECT DISTINCT
+        CLIENTE_COD,
+        CLIE_DWH_COD
+    FROM lp-datalake-prod.Oracle.cst_legamisaprol
+),
 NAVIGATO_CON_USER AS (
     SELECT 
         a.* EXCEPT(UserID),
         COALESCE(a.UserID, b.CLIENTE_COD) AS USERID,
         b.CLIENTE_COD,
         b.CLIE_DWH_COD
-    FROM NAVIGATO_FULL a
-        LEFT JOIN ${ref('sal_transazioni')} b 
+    FROM lp-datalake-prod.181871398.daily_export_loro_piana a
+        LEFT  JOIN TRANSAZIONI b 
             ON a.TransactionID = b.ECO_DOC_NUM 
-),
+)
+,
 NAVIGATO_CON_USER2 AS (
     SELECT 
         a.*,
-        b.CLIE_DWH_COD AS ROL_ID
+        b.CD_USERID
     FROM NAVIGATO_CON_USER a
-        LEFT JOIN ${ref('cst_customer')} b  
-            ON a.USERID = b.CLIENTE_COD
+        LEFT  JOIN (
+            SELECT 
+                COOKIEID,
+                COUNT(DISTINCT(USERID)) AS CD_USERID
+            FROM NAVIGATO_CON_USER
+            group by COOKIEID
+            order by COOKIEID 
+        ) B
+            ON a.COOKIEID = b.COOKIEID
+),
+NAVIGATO_CON_USER3 AS (
+    SELECT
+     	a.*,
+        b.CLIE_DWH_COD as Rol_ID
+    FROM NAVIGATO_CON_USER2 a 
+    LEFT  JOIN ANAGRAFICA_CLIENTI b
+        ON b.CLIENTE_COD = a.userid
+    ORDER BY cookieID, Rol_ID desc
+),
+NAVIGATO_FINAL_1 AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY cookieID ORDER BY cookieID, ROL_ID DESC) AS RN,
+    FROM NAVIGATO_CON_USER3
 )
-/* m1_99 da riga 409 non fatto */
-SELECT
-    *
-FROM NAVIGATO_CON_USER2
+/* ABBIAMO BISOGNO DI SPALMARE IL ROLID PER COOKIEID.
+   NEL CASO IL ROL_ID FOSSE NULLO, QUANDO VIENE VALORIZZATO ANCHE SOLO UNA VOLTA UNO USERID PER COOKIEID
+   ALLORA TENGO IL ROL_ID PER TUTTO QUEL VALORE DI COOKIEID
+   NEL CASO NON FOSSE NULLO, ALLORA LO TENGO E LO SPALMO PER OGNI COOKIEID */
+SELECT DISTINCT
+    a.* EXCEPT(ROL_ID, CLIENTE_COD, CLIE_DWH_COD, cd_userid, rn),
+    CASE
+        WHEN USERID IS NULL THEN b.ROL_ID
+        WHEN a.CD_USERID = 1 THEN a.ROL_ID
+        WHEN a.CD_USERID > 1 AND a.RN = 1 THEN a.ROL_ID
+        WHEN a.CD_USERID > 1 AND a.RN > 1 AND a.ROL_ID IS NOT NULL THEN a.ROL_ID
+        WHEN a.CD_USERID > 1 AND a.RN > 1 AND a.ROL_ID IS NULL THEN NULL
+    END AS ROL_ID
+    FROM NAVIGATO_FINAL_1 a
+    LEFT JOIN (
+        SELECT DISTINCT
+            cd_userID,
+            sessions,
+            SESSIONSID,
+            COOKIEID,
+            ROL_ID
+        FROM NAVIGATO_FINAL_1
+        WHERE USERID IS NOT NULL AND ROL_ID IS NOT NULL
+    ) b ON
+    a.cd_userid=b.cd_userid 
+    AND a.COOKIEID=b.COOKIEID AND a.USERID IS NULL

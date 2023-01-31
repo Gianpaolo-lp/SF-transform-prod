@@ -1,0 +1,9 @@
+config {
+  type: "table",
+  tags: "M12"
+}
+
+SELECT
+DISTINCT 
+*
+FROM ${ref('M12_Cart_Incremental')}

@@ -1,73 +1,317 @@
 config {
   type: "table"
 }
-
-with TASK as (
-SELECT
-  *
-FROM ${ref('M14_Task_Export')}
-order by WhoId, CreatedById, Subject, HistoryKey, ActivityDate, LastModifiedDate),
-
-
-TASK_2 AS (
-SELECT
-  * EXCEPT(ActivityDate, TYPE, DESCRIPTION,Id),
-  Id as CampaignID,
-  Id,
-  FIRST_VALUE(ActivityDate) OVER (PARTITION BY whoId ORDER BY ActivityDate DESC) AS ActivityDate,
-  CASE
-  WHEN STRPOS(type, '->') > 0 THEN ARRAY_REVERSE(SPLIT(type, '->'))[OFFSET(0)]
-  WHEN type IN ('CHECK IN', 'In Store','CHECKIN','In-Store','InStore') THEN 'Check In'
-  WHEN type = 'MESSAGE' THEN 'SMS'
-  WHEN type = 'Other' then 'Other Delighting'
-  END AS TYPE,
-  CASE 
-  WHEN type = 'Check In' then  'Check In'
-  WHEN type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contract'
-  ELSE 'Delighting'
-  END AS MACRO_TYPE,
-  REPLACE(Description, '\\n', '') AS Description
-FROM TASK)
-
+/* M14_TASK_QLICK */
+WITH
+/* it selects some information from the M13_USER table */
+USER AS (
 	SELECT
-		* EXCEPT(CampaignID,Id),
-		CASE
-			WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
-			WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
-			WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
-			WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
-			WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
-			WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
-			WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
-			WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
-			WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
-			WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
-			WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
-			WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
-			WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
-			WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
-			WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
-			WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
-			WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
-			WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
-			END AS CampaignID,
-		Id,
-		CASE
-			WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
-			ELSE 1
-			END AS Consignment_Contact,
-		CASE
-			WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
-			ELSE 1
-			END AS RemoteSelling_Contact,
-		CASE
-			WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
-			ELSE 1
-			END AS Consignment_Activities,
-		CASE
-			WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
-			ELSE 1
-			END AS Remote_Activities
-	FROM TASK_2 
+		id AS CreatedById,
+		PersonId__c AS ActUser_PersonID,
+		Name AS ActUser_FullName,
+		ShopCode__c AS ActUser_StoreID
+	FROM `lp-datalake-prod.Salesforce.User`
+),
+/* it selects some information from the ang_operatori table */
+OPERATORI AS (
+	SELECT DISTINCT 
+		PERSONID_EXT_COD AS COD_PERSONID_EXT,
+		NOME_OPERATORE_COD  AS NOME_OPE,
+		COGNOME_OPERATORE_COD AS cognome_ope,
+		NEGZ_COD
+	FROM `Oracle.ang_operatori`
+	WHERE PERSONID_EXT_COD IS NOT NULL
+),
+/* it selects some information from the ang_negz table */
+NEGOZI AS (
+	SELECT DISTINCT
+		NEGZ_COD,		
+		a.AREA_GEO_DES AS des_area_geo,
+		b.STATO_DES AS DES_STATO,
+		NEGZ_DES AS DES_NEGZ
+	FROM `Oracle.ang_negz` a 
+		/* it joins with and_areegeo in order to get the stato_des field */
+		LEFT JOIN `Oracle.ang_areegeo` b 
+			ON a.STATO_COD = b.STATO_COD
+),
+/* operatori + negozi */
+OPERATORI_NEGOZI AS (
+	SELECT DISTINCT
+		a.*,
+		b.* EXCEPT(NEGZ_COD)
+	FROM OPERATORI a 
+		INNER JOIN NEGOZI b 
+			ON a.NEGZ_COD = b.NEGZ_COD
+	WHERE COD_PERSONID_EXT IS NOT NULL
+),
+/* it selects some information from the cst_customer table */
+CST_CUSTOMER AS (
+	SELECT  
+		CLIE_DWH_COD,
+		SA_PERSONID_EXT_COD,
+		SA2_PERSONID_EXT_COD,
+		NEGZ_OPERATORE_RIF_COD,
+		NEGZ_OPERATORE2_RIF_COD,
+		NOME_COD AS CLI_NOME,
+		CGNM_COD AS CLI_CGN,
+		TEL_CELL_COD AS CLI_TEL_CEL,
+		EMAIL_COD AS CLI_EMAIL
+	FROM `Oracle.cst_customer`
+),
+/* it selects some information from the M13_CONTACT table */
+CONTACT AS (
+	SELECT 
+		id,
+		rolid,
+		AccountId AS FIRST_STORE,
+		OwnerId AS FIRST_SA,
+		SecondDedicatedStore AS SECOND_STORE,
+		SecondSaleAssistantOfComp AS SECOND_SA
+	FROM `lp-datalake-prod.Salesforce.Contact_S`
+),
+/* it adds some cst_customer table fields into the contact table */
+CONTACT_CUSTOMER AS (	
+		select 
+			a.id,
+			a.rolid,					
+			a.FIRST_STORE,
+			a.FIRST_SA,
+			a.SECOND_STORE,
+			a.SECOND_SA,
+			b.CLIE_DWH_COD,
+			b.CLI_NOME,
+			b.CLI_CGN,
+			b.CLI_TEL_CEL,
+			b.CLI_EMAIL,
+			b.SA_PERSONID_EXT_COD,
+			b.SA2_PERSONID_EXT_COD,
+			b.NEGZ_OPERATORE_RIF_COD,
+			b.NEGZ_OPERATORE2_RIF_COD,
+			COALESCE(b.SA_PERSONID_EXT_COD, a.FIRST_SA) AS JOIN_KEY 
+		FROM CONTACT a
+		LEFT JOIN CST_CUSTOMER b
+			ON CAST(b.CLIE_DWH_COD AS STRING) = a.rolid
+		WHERE a.rolid IS NOT NULL
+),
+/* it adds some operatori table and negozi table fields into the contact_customer table */
+/* in sas: contact_customer_HASH_2 */
+CONTACT_CUSTOMER_OPERATORI_NEGOZI AS (
+	SELECT
+		a.*,
+		COALESCE(a.SA_PERSONID_EXT_COD, a.first_sa) AS cod_personid_ext,
+		COALESCE(a.SA2_PERSONID_EXT_COD,a.second_sa) AS cod_personid_ext_2,
+		b.nome_ope,
+		b.cognome_ope,
+		c.nome_ope AS NOME_OPE2,
+		c.cognome_ope AS COGNOME_OPE2,
+		d.des_area_geo,
+		d.des_stato,
+		d.des_negz,
+		e.des_area_geo AS DES_AREA_GEO2,
+		e.des_stato AS DES_STATO2,
+		e.des_negz AS DES_NEGZ2
+	FROM CONTACT_CUSTOMER a 
+		LEFT JOIN OPERATORI b 
+			ON a.JOIN_KEY = CAST(b.COD_PERSONID_EXT AS string) 
+				AND a.JOIN_KEY IS NOT NULL
+				AND a.FIRST_STORE = b.NEGZ_COD
+		LEFT JOIN OPERATORI c
+			ON a.JOIN_KEY = CAST(c.COD_PERSONID_EXT as string) 
+    			AND a.JOIN_KEY IS NOT NULL
+    			AND a.SECOND_STORE = c.NEGZ_COD
+		LEFT JOIN NEGOZI d 
+			ON a.JOIN_KEY = d.NEGZ_COD
+		LEFT JOIN NEGOZI e 
+			ON a.JOIN_KEY = e.NEGZ_COD
+),
+TASK0 AS (
+    SELECT
+        *,
+        -- Id, WhoId, CreatedById, Subject, HistoryKey,ActivityDate,
+        -- MAX(ActivityDate) OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate) AS MAX_ACT_PER_GROUP
+        ROW_NUMBER() OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate DESC, CreatedDate DESC) AS RN_AC
+    FROM ${ref('M13_Task')}
+    -- SELECT * FROM test_eu.task_rn
+),
+TASK1 AS (
+    SELECT 
+        a.* EXCEPT(TYPE, DESCRIPTION),
+        -- FIRST_VALUE(ActivityDate) OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate) AS ActivityDate,
+        CASE
+            WHEN STRPOS(a.type, '->') > 0 THEN ARRAY_REVERSE(SPLIT(a.type, '->'))[OFFSET(0)]
+            WHEN a.type IN ('CHECK IN', 'In Store','CHECKIN','In-Store','InStore') THEN 'Check In'
+            WHEN a.type = 'MESSAGE' THEN 'SMS'
+            WHEN a.type = 'Other' then 'Other Delighting'
+            END AS TYPE,
+        CASE 
+            WHEN a.type = 'Check In' then  'Check In'
+            WHEN a.type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contract'
+            ELSE 'Delighting'
+            END AS MACRO_TYPE,
+        REPLACE(a.Description, '\\n', '') AS Description
+    FROM TASK0 a
+        WHERE RN_AC = 1
+        -- INNER JOIN TASK0 b
+        --     -- ON a.ActivityDate = b.MAX_ACT_PER_GROUP AND a.Id = b.Id
+        --     ON CONCAT(a.ID, a.ActivityDate) = CONCAT(b.Id, b.MAX_ACT_PER_GROUP)
+),
+/* it adds some M13_USER fields into the TASK1 table */
+TASK2 AS (
+  SELECT
+    a.*,
+    b.ActUser_PersonID,
+    b.ActUser_StoreID
+  FROM TASK1 a
+    LEFT JOIN USER b
+      ON a.CreatedById = b.CreatedById
+),
+/* in sas: CAMPAIGN_LASTID */
+CAMPAIGN AS (
+	SELECT DISTINCT
+		Code__c,
+		Id AS CampaignID
+	FROM ${ref('M14_Campaign')}
+),
+TASK3_0 AS (
+    /*
+    there are several cases to handle:
+    1. HistoryKey with '_' as delimiter, it takes the second and the third part
+    2. HistoryKey with '-' as delimiter, it takes the second part
+    3. HistoryKey null, it does nothing
+    4. HistoryKey likes 'TESTHK125' and 'TESTHK124', it does nothing because they are tests
+    */
+    WITH A AS (
+        SELECT
+            a.*,
+            CONCAT(SPLIT(HistoryKey,'_')[OFFSET(1)],'_',SPLIT(HistoryKey,'_')[OFFSET(2)]) AS KEY
+        FROM TASK2 a
+        WHERE HistoryKey NOT LIKE '%-%' AND HistoryKey <> ''  AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+        ----
+        UNION ALL 
+        ----
+        SELECT
+            a.*,
+            SPLIT(HistoryKey,'-')[OFFSET(1)] AS KEY 
+        FROM TASK2 a
+        WHERE HistoryKey LIKE '%-%' AND HistoryKey <> '' AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+        ----
+        UNION ALL
+        ----
+        SELECT
+            a.*,
+            HistoryKey AS KEY
+        FROM TASK2 a
+        WHERE HistoryKey = ''
+        ----
+        UNION ALL
+        ----
+        SELECT
+            a.*,
+            HistoryKey as KEY
+        FROM TASK2 a
+        WHERE HistoryKey = 'TESTHK125' or HistoryKey = 'TESTHK124'
+    )
+    SELECT
+        a.*,
+        b.CampaignId
+    FROM A
+        LEFT JOIN CAMPAIGN b
+            ON KEY = COALESCE(Code__c,CampaignId)
+)
+/* in sas: TASK_FIN_NEW */
+SELECT
+    * EXCEPT(CampaignID,RN_AC,KEY),
+    CASE
+        WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
+        WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+        WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+        WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
+        WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
+        WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
+        WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
+        WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
+        WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
+        WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
+        WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
+        WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
+        WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+        WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+        WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+        WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+        WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
+        WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
+        ELSE CampaignID
+        END AS CampaignID,
+    CASE
+        WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
+        ELSE 1
+        END AS Consignment_Contact,
+    CASE
+        WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
+        ELSE 1
+        END AS RemoteSelling_Contact,
+    CASE
+        WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
+        ELSE 1
+        END AS Consignment_Activities,
+    CASE
+        WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
+        ELSE 1
+        END AS Remote_Activities
+FROM TASK3_0
 
+UNION ALL
+
+SELECT
+AccountId,
+ActivityDate,
+CheckInMissedPurchase__c as CheckInMissedPurchase,
+CheckInStore__r_TaxiShopCode__c as CheckInStore_TaxiShopCode,
+ClientelingList__c as CLIENTELINGLIST,
+CAST(ContactedThroughGaisho__c AS STRING)  as ContactedThroughGaisho,
+Campaign__c as Campaign,
+ConsignmentFirstStatusUpdate__c as ConsignmentFirstStatusUpdate,
+ConsignmentSecondStatusUpdate__ as ConsignmentSecondStatusUpdate,
+ConsignmentStatus__c as ConsignmentStatus,
+CAST(Consignment__c AS STRING) as Consignment,
+CAST(ContactCommunicationOk__c AS STRING) as ContactCommunicationOk,
+ContactCommunication__c as ContactCommunication,
+ContactRolId__c as ContactRolId,
+CAST(ContactedThroughConcierge__c AS STRING) as ContactedThroughConcierge,
+CreatedById,
+createddate as CreatedDate,
+CAST(EventConfirmation__c AS STRING) as EventConfirmation,
+CAST(EndDateTime__c AS TIMESTAMP) as EndDateTime,
+ExperienceRating__c as ExperienceRating,
+HistoryKey,
+Id,
+JKIndividualEmailResult__c as JKIndividualEmailResult,
+LastModifiedById,
+LastModifiedDate,
+MagNewsTemplate__c as MagNewsTemplate,
+OwnerId,
+RecordTypeId,
+RemoteSellingFirstStatusUpdate_ as RemoteSellingFirstStatusUpdate,
+RemoteSellingSecondStatusUpdate,
+RemoteSellingStatus__c as RemoteSellingStatus,
+CAST(RemoteSelling__c AS STRING) as RemoteSelling,
+CAST(StartDateTime__c AS TIMESTAMP) as StartDateTime,
+Status,
+Subject,
+Subtext__c as Subtext,
+WhoId,
+CAST(isFullDay__c AS STRING) as isFullDay,
+CAST(newHistoryKey__c AS STRING) as newHistoryKey,
+Type as TYPE,
+Macro_type AS MACRO_TYPE,
+Description,
+PersonId__c as ActUser_PersonID,
+Active_Store_ID as ActUser_StoreID,
+CampaignID,
+Consignment_Contact,
+RemoteSelling_Contact,
+Consignment_Activities,
+Remote_Activities
+FROM
+`lp-datalake-prod.SF_Trasformation.M14_Task_qlik_archiviati`
 

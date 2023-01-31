@@ -1,0 +1,79 @@
+config {
+  type: "incremental",
+  tags: "M12"
+}
+
+WITH M11_NAVIGATO_FINAL_3 AS (
+    SELECT 
+        * EXCEPT(number)
+    FROM (SELECT *,row_number() OVER (PARTITION BY SessionsID ORDER BY SessionsID, CookieID, userid) AS number FROM ${ref('M11_NAVIGATO_FULL')})
+		WHERE NUMBER = 1
+)
+,
+WL AS (
+  SELECT *
+  FROM lp-datalake-prod.181871398.addtowishlist_export
+  -- UNION ALL
+  -- SELECT *
+  -- FROM lp-datalake-dev.test_eu.TEST_m12_wishlist_202210
+)
+,
+WL_1 AS (
+    SELECT DISTINCT
+    -- IL CONCAT RESTITUISCE NULLO SE UNO DEGLI ARGOMENTI è NULLO, PERCIO' SI CONVERTE IL NULL IN STRINGA VUOTA
+        CONCAT(COALESCE(CAST(a.SessionsID AS STRING),''),'_', COALESCE(CAST(a.CookieID AS STRING),''),'_', COALESCE(a.ProductSku,'')) AS WishListKey__c,
+        a.SessionsID AS SessionsID__c,
+        a.CookieID AS CookieID__c,
+        MAX(a.EventAction) AS EventAction__c,
+        SPLIT(a.ProductSku, '_')[OFFSET(0)] AS Product__r_LoroPianaCode__c,
+        REPLACE(a.ProductSku, '_', '-') AS ProductColorCode__c_RecordID__,
+        MAX(Rank) AS Rank__c,
+        a.UserID AS UserID__c,
+        a.UserID AS Guest__r_SapId__c,
+        CAST(CONCAT(SUBSTR(MAX(a.DATE),0,4),'-',SUBSTR(MAX(a.DATE),5,2),'-',SUBSTR(MAX(a.DATE),7,2),'T00:00:00') AS TIMESTAMP) AS EventDate__c,
+        MAX(ProductName) AS ProductName__c,
+        CASE 
+            WHEN ARTICOLO_COD IS NULL THEN 'FALSE'
+            ELSE 'TRUE'
+            END AS ItemPurchased__c,
+        MAX(a.HostName) AS Hostname__c,
+        MAX(NavigationLanguage) AS NavigationLanguage__c,
+        MAX(BrowserLanguage)	AS BrowserLanguage__c,
+        MAX(CountrySession) AS CountryDescription__c,
+        CAST(MIN(EMISSIONE_DTA) AS TIMESTAMP) AS TransactionDate__c,
+        -- CAST(CONCAT(SUBSTR(a.DATE,0,4),'-',SUBSTR(a.DATE,5,2),'-',SUBSTR(a.DATE,7,2)) AS DATE) AS DATE
+    FROM WL a 
+        LEFT JOIN M11_NAVIGATO_FINAL_3 b 
+            ON a.SessionsID = b.SessionsID AND a.CookieID = b.CookieID
+        LEFT JOIN ${ref('sal_transazioni')} c 
+            ON (SPLIT(a.ProductSku, '_')[OFFSET(0)] = c.ARTICOLO_COD 
+            AND b.ROL_ID = c.CLIE_DWH_COD 
+            AND (CAST(CONCAT(SUBSTR(a.DATE,0,4),'-',SUBSTR(a.DATE,5,2),'-',SUBSTR(a.DATE,7,2)) AS DATE)) >= c.EMISSIONE_DTA)
+    WHERE 
+      CAST(CONCAT(SUBSTR(a.DATE,0,4),'-',SUBSTR(a.DATE,5,2),'-',SUBSTR(a.DATE,7,2)) AS DATE) >= CURRENT_DATE()-7 and a.UserID IS NOT NULL
+    GROUP BY 1,2,3,5,6,8,9, ARTICOLO_COD
+    -- CAST(CONCAT(SUBSTR(a.DATE,0,4),'-',SUBSTR(a.DATE,5,2),'-',SUBSTR(a.DATE,7,2)) AS DATE)
+)
+
+    SELECT 
+        a.*,
+        b.date
+    FROM WL_1 a
+    LEFT JOIN (SELECT DISTINCT CAST(CONCAT(SUBSTR(DATE,0,4),'-',SUBSTR(DATE,5,2),'-',SUBSTR(DATE,7,2)) AS DATE) AS DATE,
+         CONCAT(COALESCE(CAST(SessionsID AS STRING),''),'_', COALESCE(CAST(CookieID AS STRING),''),'_', COALESCE(ProductSku,'')) AS WishListKey__c,   FROM WL) b
+    on a.WishListKey__c = b.WishListKey__c where UserID__c IS NOT NULL
+-- ContactWishlist__c_to_add AS (
+--     /* dobbiamo buttare via i record con mese (della data) < mese di oggi -1 */
+--     SELECT 
+--         *
+--     FROM WL_1
+--     WHERE EXTRACT(MONTH FROM DATE) >= 
+--         /* se mese = gennaio prendo dicembre, altrimenti prendo mese-1 */
+--         IF(EXTRACT(MONTH FROM DATE)=1, 12, EXTRACT(MONTH FROM DATE)-1)
+--         /* carico solamente user_id <> nullo, user_id non nullo se il cliente si è loggato, nullo altrimenti */
+--         AND UserID__c IS NOT NULL
+-- )
+-- /* storicizzazione */ 
+-- SELECT * FROM ContactWishlist__c_to_add
+-- UNION DISTINCT 
+-- SELECT * FROM lp-datalake-dev.test_eu.WISHLIST__C

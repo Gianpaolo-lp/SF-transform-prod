@@ -58,10 +58,10 @@ DISTINCT
     TypeOfService__c,
     TypeOfServiceOther__c,
     UnionID,
-    S1.WeChatSource,
-   -- CURRENT_DATE() AS INS_DTA
+    S1.WeChatSource
+
 FROM ${ref('Contact_S')} S
 left join ${ref('Contact_S1')} S1 using(Id) 
 left join lp-datalake-prod.Salesforce.Contact C using(Id) 
--- WHERE CAST(S.LastModifiedDate AS TIMESTAMP) >= CAST(CURRENT_DATE()-5 AS TIMESTAMP) 
+
 

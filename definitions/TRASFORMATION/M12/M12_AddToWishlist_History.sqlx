@@ -1,6 +1,5 @@
 config {
-  type: "incremental",
-  tags:'M12'
+  type: "incremental"
 }
 
 SELECT
