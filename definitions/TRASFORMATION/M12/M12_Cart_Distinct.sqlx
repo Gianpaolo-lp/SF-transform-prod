@@ -5,5 +5,5 @@ config {
 
 SELECT
 DISTINCT 
-*
+*EXCEPT(date)
 FROM ${ref('M12_Cart_Incremental')}

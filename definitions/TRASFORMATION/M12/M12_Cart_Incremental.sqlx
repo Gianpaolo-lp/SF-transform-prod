@@ -27,7 +27,7 @@ C_1 AS (
         a.CookieID AS CookieID__c,
         MAX(a.EventAction) AS EventAction__c,
         SPLIT(a.ProductSku, '_')[OFFSET(0)] AS Product__r_LoroPianaCode__c,
-        REPLACE(a.ProductSku, '_', '-') AS ProductColorCode__c_RecordID__,
+        REPLACE(a.ProductSku, '_', '-') AS ProductColorCode__c_RecordID__c,
         MAX(Rank) AS Rank__c,
         a.UserID AS UserID__c,
         a.UserID AS Guest__r_SapId__c,
