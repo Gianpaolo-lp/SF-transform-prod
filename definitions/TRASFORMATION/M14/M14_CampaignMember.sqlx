@@ -77,7 +77,7 @@ WITH M14_CAMPAIGN_MEMBER AS (
         GuestCluster__c,
         GuestClusterGroup__c,
         
-    FROM lp-datalake-prod.Salesforce.CampaignMember_Complete_LAST365
+    FROM lp-datalake-prod.Salesforce.CampaignMember_Complete_backup
     ORDER BY HistoryKey__c
 ),
 FMT AS (
