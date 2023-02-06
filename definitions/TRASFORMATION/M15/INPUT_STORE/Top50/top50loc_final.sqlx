@@ -1,0 +1,88 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* top50loc_final */
+
+select 'u'
+
+-- WITH 
+-- tier AS (
+--     SELECT
+--         LDEG_CLIE_DWH_COD AS cli_dwh_key,
+--         LDEG_TIER_COD as tier,
+--         LDEG_SPEND_BAND_COD as spend_band
+--     FROM lp-datalake-dev.dataform.TIER_CLASSIFICATION_FINAL
+-- ),
+-- top_cust AS (
+--     SELECT
+--         a.*,
+--         b.*EXCEPT(cli_dwh_key),
+--     FROM ${ref('Customer_Table')} a
+--     INNER JOIN TIER b
+--         USING(cli_dwh_key)
+--     UNION ALL
+--     SELECT
+--         a.*EXCEPT(PERSONID_EXT_COD, cod_negz_operatore_riferimento, cod_operatore_riferimento),
+--         b.*EXCEPT(cli_dwh_key),
+--         CASE
+--             WHEN COD_OPERATORE2_RIFERIMENTO not in ('','nd') THEN COD_OPERATORE2_RIFERIMENTO
+--             ELSE cod_operatore_riferimento
+--             END AS cod_operatore_riferimento,
+--         CASE
+--             WHEN COD_OPERATORE2_RIFERIMENTO not in ('','nd') THEN COD_NEGZ_OPERATORE2_RIF
+--             ELSE cod_negz_operatore_riferimento
+--             END AS cod_negz_operatore_riferimento,
+--         CASE
+--             WHEN COD_OPERATORE2_RIFERIMENTO not in ('','nd') THEN PERSONID2_EXT_COD
+--             ELSE PERSONID_EXT_COD
+--             END AS PERSONID_EXT_COD
+--     FROM ${ref('Customer_Table')} a
+--     INNER JOIN TIER b
+--         USING(cli_dwh_key)
+--     WHERE COD_OPERATORE2_RIFERIMENTO not in ('','nd')
+-- ),
+-- top50loc_0 AS (
+--     SELECT
+--         * EXCEPT(cod_nazionalita),
+--         CASE
+--             WHEN cod_stato in ('','nd') THEN cod_nazionalita
+--             ELSE cod_stato
+--             END AS NAZIONE,
+--         'Y' AS TOP50local,
+--         ROW_NUMBER() OVER (PARTITION BY cod_operatore_riferimento ORDER BY
+--                 cod_operatore_riferimento,
+--                 tier, 
+-- 				--acq_netto_resi_ann_prec desc,
+--                 --acq_netto_resi desc, 
+--                 cli_dwh_key) AS conta_local
+--     FROM  top_cust 
+--     WHERE cod_nazionalita = substr(COD_NEGZ_OPERATORE_RIFERIMENTO,1,2)
+-- ),
+-- top50loc AS (
+--     SELECT *
+--     FROM top50loc_0
+--     WHERE conta_local <= 50
+-- ),
+-- top50loc_final_0 AS (
+-- 		SELECT distinct	
+--             cli.cli_dwh_key,
+-- 			cli.COD_NEGZ_OPERATORE_RIFERIMENTO AS comp_store,
+-- 			cli.COD_OPERATORE_RIFERIMENTO AS comp_sa,
+-- 			coalesce(cli.PERSONID_EXT_COD,openeg.COD_PERSONID_EXT,'ND') AS cod_personid_ext 
+-- 		FROM top50loc cli
+--             LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+--                 ON 	openeg.cod_negz = cli.COD_NEGZ_OPERATORE_RIFERIMENTO
+--                     AND openeg.cod_ope = cli.COD_OPERATORE_RIFERIMENTO
+-- ),
+-- top50loc_final2 AS (
+-- 	SELECT a.*
+-- 	FROM top50loc_final_0 a
+--         LEFT JOIN ${ref('ANG_NEGZ')}  b
+--             ON a.comp_store = b.negz_cod
+
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM top50loc_final2

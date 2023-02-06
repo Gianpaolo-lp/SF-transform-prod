@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+SELECT DISTINCT
+    NEGZ_COD AS cod_negz,
+    OPERATORE_COD AS cod_ope,
+    PERSONID_EXT_COD AS cod_personid_ext
+FROM `lp-datalake-prod.Oracle.ang_operatori`
+UNION ALL
+SELECT 
+    'ZU01' AS cod_negz,
+    '300867' AS cod_ope,
+    '00001961' AS cod_personid_ext

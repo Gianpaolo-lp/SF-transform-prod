@@ -1,0 +1,11 @@
+config {
+  type: "view",
+  tags: 'M27'
+}
+
+SELECT 
+    CANALE_COD AS canaleCode,		
+    CANALE_DES AS canaleDes,		
+    TIPO_UNIT_DES AS areaDescription,	
+    TIPO_UNIT_COD AS areaCode		
+FROM ${ref('ang_tipounit')}

@@ -1,0 +1,76 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* scontrini_LastMonthFinal */
+
+select 'u'
+
+-- WITH 
+-- scontrini_PotLastMonth AS (
+--     /****	POTENTIAL LAST MONTH	****/
+--     SELECT 	cli.cli_dwh_key,
+--         incNeg.cod_negz_taxi,
+--         CASE
+--             WHEN cli.comp_store1 = incNeg.cod_negz_taxi THEN 	cli.comp_sa1
+--             ELSE cli.comp_sa2 
+--         END AS comp_sa,
+--         CASE
+--             WHEN cli.comp_store1 = incNeg.cod_negz_taxi THEN 	1
+--             ELSE 2
+--         END AS comp_store_num,
+--         coalesce(openeg.cod_personid_ext,'ND') AS cod_personid_ext,
+--         sum(incNeg.imp_eur) AS sum_Importo
+--     FROM ${ref('LISTA_CST_STORE')} cli
+--     LEFT JOIN ${ref('INCASSI_NEGZ')} incNeg
+--         ON incNeg.cli_dwh_key = cli.cli_dwh_key
+--         AND (	cli.comp_store1 = incNeg.cod_negz_taxi
+--             OR 	cli.comp_store2 = incNeg.cod_negz_taxi)
+--     LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+--         ON 	openeg.cod_negz = incneg.cod_negz_taxi
+--         AND ( (	cli.comp_sa1 = openeg.cod_ope	AND	cli.comp_store1 = openeg.cod_negz )
+--             OR(	cli.comp_sa2 = openeg.cod_ope	AND	cli.comp_store2 = openeg.cod_negz ))
+--     WHERE DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(DATE_SUB(CURRENT_DATE(), INTERVAL 25 MONTH), month) 
+--         OR (DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(DATE_SUB(CURRENT_DATE(), INTERVAL 13 MONTH), month))
+--         AND cli.score in ('Tier 1','Tier 2','Tier 3')
+--     GROUP BY 1,2,3,4,5
+--     having sum_Importo >= 0.01 
+--         AND cli_dwh_key = MIN(cli_dwh_key) 
+--     ORDER BY cli_dwh_key, comp_store_num
+-- ),
+-- scontrini_LastMonth AS (
+--     SELECT	pm.cli_dwh_key,
+--             cast(incNeg.data_ems_doc AS date) AS data_ems_doc,
+--             incNeg.cod_negz_taxi,
+--             neg.canale_cod,
+--             sum(incNeg.imp_eur) AS sum_Importo
+--     FROM ${ref('scontrini_PotThisMonth')} pm
+--     LEFT JOIN ${ref('INCASSI_NEGZ')} incNeg
+--         ON incNeg.cli_dwh_key = pm.cli_dwh_key
+--     LEFT JOIN ${ref('ANG_NEGZ')} Neg
+--         ON	incNeg.cod_negz_taxi = neg.negz_cod
+--     WHERE 	DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), month) 
+--         AND canale_cod in ('STO','ECO')
+--     GROUP BY 1,2,3,4
+--     having sum_Importo >= 0.01
+-- ),
+-- scontrini_LastMonthFinal_0 AS (
+--     SELECT *
+--     FROM scontrini_PotLastMonth
+--     WHERE cli_dwh_key NOT IN (
+--         SELECT cli_dwh_key
+--         FROM scontrini_LastMonth
+--     )
+-- ),
+-- scontrini_LastMonthFinal2 AS (
+-- 	SELECT a.*except(cod_negz_taxi),
+-- 	a.cod_negz_taxi AS comp_store
+-- 	FROM scontrini_LastMonthFinal_0 a
+--         LEFT JOIN ${ref('ANG_NEGZ')} b
+--         on a.cod_negz_taxi = b.negz_cod
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM scontrini_LastMonthFinal2
+-- ORDER BY cli_dwh_key, cod_personid_ext

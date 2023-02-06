@@ -1,0 +1,41 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* Active_New */
+
+select 'u'
+
+-- WITH 
+-- Active_New_0 AS (
+--     SELECT
+--         cli_dwh_key,
+--         comp_store1 AS comp_store,
+--         comp_sa1 AS comp_sa,
+--         cod_personid_ext1 AS cod_personid_ext
+--     FROM  ${ref('ListaClienti_activate')}
+--     WHERE 
+--         DATA_PRIM_ACQ >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
+--     UNION ALL
+--     SELECT
+--         cli_dwh_key,
+--         comp_store2 AS comp_store,
+--         comp_sa2 AS comp_sa,
+--         cod_personid_ext2 AS cod_personid_ext       
+--     FROM  ${ref('ListaClienti_activate')}
+--     WHERE 
+--         DATA_PRIM_ACQ >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
+--         AND comp_store2 IS NOT NULL
+-- ),
+-- Active_New2 AS (
+-- 	SELECT a.*
+-- 	FROM Active_New_0 a
+-- 	LEFT JOIN  ${ref('ANG_NEGZ')} b
+-- 		ON a.comp_store = b.negz_cod
+
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM Active_New2
+-- ORDER BY cli_dwh_key, cod_personid_ext

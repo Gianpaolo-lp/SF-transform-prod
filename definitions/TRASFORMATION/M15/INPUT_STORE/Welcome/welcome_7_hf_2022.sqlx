@@ -1,0 +1,68 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* welcome_7_hf_2022 */
+
+select 'u'
+
+-- WITH
+-- /* LAST 30 DAYS VISITS HIROSHI FUJIWANA -> da m15_01_recent_visit */
+-- incassi_negozi_hf as (
+-- 	select 
+-- 		CLIE_DWH_COD AS cli_dwh_key,
+-- 		CLASSE_COD AS COD_CLA,
+--         CAST(DATA_EMISSIONE_DOC1 AS DATE) AS data_ems_doc,
+--         NEGZ_COD AS cod_negz_taxi,
+--         OPERATORE_COD AS cod_ope,
+--         SUM(imp_eur) AS imp_eur,
+-- 		MAX(case when substr(inc.articolo_cod,1,7) in (select fam from lp-datalake-dev.SF_Trasformation.M15_HF_list) then 1 else 0 end) as flag_hf
+-- 	from lp-datalake-dev.test_eu.sal_transazioni_eur inc
+-- 	left join lp-datalake-dev.Oracle.ang_articoli anag
+-- 		on anag.ARTICOLO_COD = inc.ARTICOLO_COD
+-- 	where CAU_RSO_RGH_COD in ('VEN', 'RES', 'SPE')
+-- 	group by 1,2,3,4,5
+-- ),
+-- incassi_negozi_hf2 as (
+-- 	select 
+-- 		cli_dwh_key,
+-- 		data_ems_doc, 
+-- 		cod_negz_taxi,
+-- 		cod_ope,
+-- 		imp_eur,
+-- 		max(flag_hf) as flag_hf
+-- 	from incassi_negozi_hf
+-- 	group by 1,2,3,4,5
+-- 	having flag_hf = 1
+-- ),
+-- welcome_7_hf_0 as (
+-- 	select distinct 
+--         cli.cli_dwh_key,
+-- 		COALESCE(openeg.cod_personid_ext, 'ND') as cod_personid_ext,
+-- 		cli.comp_store1 as comp_Store,
+-- 		incNeg.imp_eur
+-- 	from ${ref('ListaClienti_welcome')} cli
+-- 	left join incassi_negozi_hf2 incNeg
+-- 		on incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 	left join ${ref('OPERATORI_NEGZ')} openeg
+-- 		on openeg.cod_negz = cli.comp_store1
+-- 			and openeg.cod_ope = cli.comp_sa1
+-- 	left join ${ref('ANG_NEGZ')} Neg
+-- 		on incNeg.cod_negz_taxi = neg.negz_cod
+-- 	where cli.DATA_PRIM_ACQ >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+-- 		and cli.DATA_PRIM_ACQ < CURRENT_DATE
+-- 	group by 1,2,3,4
+-- 	having SUM(incNeg.imp_eur) >= 0.01
+-- ),
+-- welcome_7_hf2 as (
+-- 	select a.*
+-- 	from welcome_7_hf_0 a
+-- 	left join ${ref('ANG_NEGZ')} b
+-- 		on a.comp_store = b.negz_cod
+
+-- 	where substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- select *
+-- from welcome_7_hf2
+-- ORDER BY cli_dwh_key, cod_personid_ext

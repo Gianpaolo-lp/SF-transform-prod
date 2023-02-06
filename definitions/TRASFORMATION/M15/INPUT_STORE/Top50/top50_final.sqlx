@@ -1,0 +1,113 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* top50_final */
+
+select 'u'
+-- WITH 
+-- tier AS (
+--     SELECT
+--         LDEG_CLIE_DWH_COD AS cli_dwh_key,
+--         LDEG_TIER_COD AS tier,
+--         LDEG_SPEND_BAND_COD AS spend_band
+--     FROM lp-datalake-dev.dataform.TIER_CLASSIFICATION_FINAL
+-- ),
+-- customer_table2 AS (
+-- 	SELECT 
+-- 		* EXCEPT(PERSONID_EXT_COD,PERSONID2_EXT_COD),
+-- 		CASE
+-- 				WHEN PERSONID_EXT_COD = '0' then NULL
+-- 				ELSE PERSONID_EXT_COD
+-- 		END AS PERSONID_EXT_COD,
+-- 		CASE
+-- 			WHEN PERSONID2_EXT_COD = '0' then NULL
+-- 			ELSE PERSONID2_EXT_COD
+-- 		END AS PERSONID2_EXT_COD
+-- 	FROM ${ref('Customer_Table')}
+-- ),
+-- top_cust_part1 AS (
+-- 		SELECT 
+-- 			a.cli_dwh_key,
+-- 			a.acq_netto_resi,
+-- 			a.acq_netto_resi_ann_prec,
+-- 			a.cod_stato,
+-- 			a.cod_nazionalita,
+-- 			a.cod_operatore_riferimento,
+-- 			a.cod_negz_operatore_riferimento,
+-- 			a.PERSONID_EXT_COD,
+-- 			b.tier,
+-- 			b.spend_band
+--     FROM customer_table2 a
+--     INNER JOIN TIER b
+--         USING(cli_dwh_key)
+-- ),
+-- top_cust_part2 AS (
+-- 	SELECT
+-- 		a.cli_dwh_key,
+-- 		a.acq_netto_resi,
+-- 		a.acq_netto_resi_ann_prec,
+-- 		a.cod_stato,
+-- 		a.cod_nazionalita,
+-- 		COD_OPERATORE2_RIFERIMENTO AS cod_operatore_riferimento,
+-- 		COD_NEGZ_OPERATORE2_RIF AS cod_negz_operatore_riferimento,
+-- 		PERSONID2_EXT_COD AS PERSONID_EXT_COD,
+-- 		b.tier,
+-- 		b.spend_band
+-- 		FROM customer_table2 a
+-- 		INNER JOIN TIER b
+-- 				USING(cli_dwh_key)
+-- 		WHERE COD_OPERATORE2_RIFERIMENTO not in ('','nd')
+-- ),
+-- top_cust AS (
+-- 	SELECT * FROM top_cust_part1
+-- 	UNION ALL    
+-- 	SELECT * FROM top_cust_part2
+-- ),
+-- top50_0 AS (
+-- 	SELECT
+-- 		*,
+-- 	FROM (
+-- 		SELECT 
+-- 			*,
+-- 			CASE
+-- 					WHEN cod_stato in ('','nd') THEN cod_nazionalita
+-- 					ELSE cod_stato
+-- 			END AS NAZIONE,
+-- 		FROM  top_cust)
+-- 	WHERE NAZIONE <> substr(COD_NEGZ_OPERATORE_RIFERIMENTO,1,2)
+	
+-- ),
+-- top50 AS (
+--     SELECT
+-- 			*,
+--     FROM (SELECT
+-- 			*,
+-- 			ROW_NUMBER() OVER (PARTITION BY cod_operatore_riferimento ORDER BY cod_operatore_riferimento,
+-- 				tier, acq_netto_resi_ann_prec desc, acq_netto_resi desc, cli_dwh_key) AS CONTA
+-- 			FROM top50_0)
+--     WHERE conta <= 50 
+-- ),
+-- top50_final_0 AS (
+-- 		SELECT DISTINCT
+--             cli.cli_dwh_key,
+-- 			cli.COD_NEGZ_OPERATORE_RIFERIMENTO AS comp_store,
+-- 			cli.COD_OPERATORE_RIFERIMENTO AS comp_sa,
+-- 			coalesce(cli.PERSONID_EXT_COD,openeg.COD_PERSONID_EXT,'ND') AS cod_personid_ext
+-- 		FROM top50 cli
+-- 		LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 			ON 	openeg.cod_negz = cli.COD_NEGZ_OPERATORE_RIFERIMENTO
+-- 			AND openeg.cod_ope = cli.COD_OPERATORE_RIFERIMENTO
+-- ),
+-- top50_final2 AS (
+-- 	SELECT a.*
+-- 	FROM top50_final_0 a
+-- 	LEFT JOIN ${ref('ANG_NEGZ')} b
+-- 		ON a.comp_store = b.negz_cod
+
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM top50_final2
+-- ORDER BY cli_dwh_key, cod_personid_ext

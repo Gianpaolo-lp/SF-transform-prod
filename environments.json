@@ -24,7 +24,7 @@
         },
         {
           "name": "Marketing_Automation",
-          "cron": "0 17 * * *",
+          "cron": "0 15 * * *",
           "tags": [
             "M11",
             "M12"
@@ -34,6 +34,17 @@
             "includeDependents": true
           },
           "disabled": false
+        },
+        {
+          "name": "Export Qlik",
+          "cron": "0 12 * * *",
+          "tags": [
+            "M13",
+            "M14"
+          ],
+          "options": {
+            "includeDependencies": false
+          }
         }
       ],
       "gitRef": "master"

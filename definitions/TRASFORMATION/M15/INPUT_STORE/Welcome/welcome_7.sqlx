@@ -1,0 +1,40 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+
+select 'u'
+
+-- /* welcome_7 */
+
+-- WITH
+-- welcome_7_0 as (
+-- 	select distinct 
+--     cli.cli_dwh_key,
+-- 		COALESCE(openeg.cod_personid_ext, 'ND') as cod_personid_ext,
+-- 		cli.comp_store1 as comp_Store,
+-- 		incNeg.imp_eur
+-- 	from ${ref('ListaClienti_welcome')} cli
+-- 	left join  ${ref('INCASSI_NEGZ')}  incNeg
+-- 		on incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 	left join  ${ref('OPERATORI_NEGZ')} openeg
+-- 		on openeg.cod_negz = cli.comp_store1
+-- 			and openeg.cod_ope = cli.comp_sa1
+-- 	left join ${ref('OPERATORI_NEGZ')} Neg
+-- 		on incNeg.cod_negz_taxi = neg.cod_negz
+-- 	where cli.DATA_PRIM_ACQ >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+-- 		and cli.DATA_PRIM_ACQ < CURRENT_DATE
+-- 	group by 1,2,3,4
+-- 	having SUM(incNeg.imp_eur) >= 0.01
+-- ),
+-- welcome_72 as (
+-- 	select a.*
+-- 	from welcome_7_0 a
+-- 	left join ${ref('ANG_NEGZ')} b
+-- 		on a.comp_store = b.negz_cod
+-- 	where substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- select *
+-- from welcome_72
+-- ORDER BY cli_dwh_key, cod_personid_ext

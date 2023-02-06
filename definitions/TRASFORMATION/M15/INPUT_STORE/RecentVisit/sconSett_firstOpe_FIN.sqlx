@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+select 'u'
+-- WITH 
+-- scontrini_Settimana AS (
+-- 	SELECT 
+--   	cli.cli_dwh_key,
+-- 		CAST(incNeg.data_ems_doc AS DATE) AS data_ems_doc,
+-- 		FIRST_VALUE(incNeg.cod_negz_taxi) OVER (PARTITION BY cli.cli_dwh_key ORDER BY cli.cli_dwh_key,  incNeg.data_ems_doc, incNeg.cod_negz_taxi) AS cod_negz_taxi,
+-- 		neg.canale_cod,   /*manca campo*/
+-- 		incneg.cod_ope  AS cod_ope,
+-- 		coalesce(openeg.cod_personid_ext, 'ND') AS cod_personid_ext,
+-- 		sum(incNeg.imp_eur)                      AS sum_Importo,
+-- 		incNeg.cod_negz_taxi AS cod_negz_taxi2
+-- 	FROM ${ref('listaClienti_recentVisit')} cli
+-- 	LEFT JOIN ${ref('INCASSI_NEGZ')}  incNeg
+-- 		ON incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 	LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 		ON openeg.cod_negz = incneg.cod_negz_taxi
+-- 			and openeg.cod_ope = incneg.cod_ope
+-- 	LEFT JOIN ${ref('ANG_NEGZ')} Neg
+-- 		ON incNeg.cod_negz_taxi = neg.negz_cod
+-- 	WHERE incNeg.data_ems_doc >= (CURRENT_DATE() - 7)
+-- 		and incNeg.data_ems_doc < CURRENT_DATE()
+-- 		and neg.canale_cod = 'STO'
+-- 		and cli.status_cod = 'Active'
+-- 		and cli.tot_visit > 1
+-- 		GROUP BY 1,2,4,5,6,8
+-- 		having sum_Importo >= 0.01
+-- ),
+-- sconSett_firstOpe_FIN_r AS (
+-- 	SELECT
+-- 		* except(cod_negz_taxi, cod_negz_taxi2),
+-- 		FIRST_VALUE(cod_negz_taxi) OVER (PARTITION BY cli_dwh_key, data_ems_doc ORDER BY cli_dwh_key, data_ems_doc, cod_negz_taxi) AS comp_store
+-- 	FROM scontrini_Settimana
+-- )
+-- SELECT a.*
+-- FROM sconSett_firstOpe_FIN_r a
+-- LEFT JOIN ${ref('ANG_NEGZ')} b
+--         on a.comp_store = b.negz_cod
+-- WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'

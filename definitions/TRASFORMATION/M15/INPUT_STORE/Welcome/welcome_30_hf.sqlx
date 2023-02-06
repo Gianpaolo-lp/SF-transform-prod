@@ -1,0 +1,9 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+select 'u'
+
+-- SELECT * FROM ${ref('welcome_30_hf_2022')}
+-- WHERE 1 = 2

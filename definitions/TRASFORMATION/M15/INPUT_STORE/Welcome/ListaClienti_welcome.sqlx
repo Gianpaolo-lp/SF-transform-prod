@@ -1,0 +1,34 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+
+
+select 'u'
+-- select 
+-- 		ct.CLIE_DWH_COD as cli_dwh_key,
+-- 		ct.status_cod,
+-- 		ct.tier_cod                    as score,
+-- 		af1.NEW_STORE_OF_COMPETENCE    as comp_store1,
+-- 		af1.NEW_SA_OF_COMPETENCE_ID    as comp_sa1,
+-- 		af1.SECOND_STORE_OF_COMPETENCE as comp_store2,
+-- 		af1.SECOND_SA_OF_COMPETENCE_ID as comp_sa2,
+-- 		ct.PRIVACY_MARK_FLG as PRIVACY_MARK_FLG,
+-- 		ct.PRIVACY_PROF_FLG as PRIVACY_PROF_FLG,
+-- 		ct.CONTATTABILE_FLG as FLG_CONTATTABILE,
+-- 		CAST(acc.PRIMO_ACQ_DTA AS DATE) AS DATA_PRIM_ACQ,
+-- 		sum(acc.VISIT_NUM) as tot_visit
+-- 	from ${ref('cst_customer')} ct
+-- 	left join lp-datalake-dev.dataform.ACTIVE_CUSTOMER_MONTH_FINAL acc
+-- 		on ct.CLIE_DWH_COD = acc.CLI_DWH_KEY
+-- 	left join lp-datalake-dev.test_eu.customer_sa af1
+-- 		on cast(ct.clie_dwh_cod as string) = af1.rol_id
+-- 	where ct.GENERICO_FLG = '0'
+-- 		and ct.DIPENDENTE_FLG = '0'
+-- 		and ct.FLG_REACH_CLIENTELING = 1
+-- 		and ct.PRIVACY_PROF_FLG = '1'			/*Clienteling Consent*/
+-- 		and ct.status_cod in (
+-- 				'NEW Acquired'
+-- 			)
+-- 	group by 1,2,3,4,5,6,7,8,9,10,11

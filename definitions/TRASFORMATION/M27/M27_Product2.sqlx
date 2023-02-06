@@ -1,0 +1,21 @@
+config {
+  type: "table",
+  tags: "M27"
+}
+
+/* DOWNLOAD FROM SAS -> /* m27_Product2_sql -> output */ 
+/* UPLOAD IN SALESFORCE -> Product2 */
+
+SELECT 
+    BUSINESS_DES AS	BusinessDescription,			
+    BUSINESS_COD AS businessCode,					
+    CLASSE_ING_DES AS ClassDescription,				
+    CLASSE_COD AS classCode,					
+    COMP_DES AS CompositionDescription,			
+    COMP_COD AS compositionCode,					
+    -- FRONT_LARGE_URL AS frontLargeURL,			ci manca		
+    ARTICOLO_COD AS itemCode,						
+    REPLACE(ARTICOLO_DES, '0A', ' ') AS itemDescription,				
+    -- FRONT_THUMB_URL AS frontThumbURL,			ci manca	
+    GENERE_COD AS Genere_Cod						
+FROM ${ref('ang_articoli')}

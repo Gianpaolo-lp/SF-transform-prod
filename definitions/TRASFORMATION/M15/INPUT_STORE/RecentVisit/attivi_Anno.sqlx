@@ -1,0 +1,41 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+select 'u'
+
+-- WITH 
+-- /* LAST 12 MONTHS mette in colonna gli store*/
+-- attivi_Anno_r AS (
+-- 	SELECT distinct 
+-- 		cli.cli_dwh_key,
+-- 		cli.comp_store1 AS comp_store,
+-- 		cli.comp_sa1 AS comp_sa,
+-- 		coalesce(openeg.cod_personid_ext, 'ND') AS cod_personid_ext
+-- 	FROM ${ref('listaClienti_recentVisit')} cli
+-- 	LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 		ON openeg.cod_negz = cli.comp_store1
+-- 			and openeg.cod_ope = cli.comp_sa1
+-- 	WHERE cli.status_cod = 'Active'
+-- 		and cli.comp_sa1 is not null
+
+-- 	UNION ALL
+
+-- 	SELECT distinct 
+-- 		cli.cli_dwh_key,
+-- 		cli.comp_store2 AS comp_store,
+-- 		cli.comp_sa2 AS comp_sa,
+-- 		coalesce(openeg.cod_personid_ext, 'ND') AS cod_personid_ext
+-- 	FROM  ${ref('listaClienti_recentVisit')}  cli
+-- 	LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 		ON openeg.cod_negz = cli.comp_store2
+-- 			and openeg.cod_ope = cli.comp_sa2
+-- 	WHERE cli.status_cod = 'Active'
+-- 		and cli.comp_sa2 is not null
+-- )
+-- SELECT a.*
+-- FROM attivi_Anno_r a
+-- LEFT JOIN ${ref('ANG_NEGZ')} b
+--         on a.comp_store = b.negz_cod
+-- WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'

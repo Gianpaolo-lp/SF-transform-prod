@@ -1,0 +1,23 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+select 'u'
+
+    -- SELECT
+	-- 	CLIE_DWH_COD AS cli_dwh_key,
+	-- 	ANNO_CORR_ACQ_EFFT_VAL as acq_netto_resi, 
+	-- 	ANNO_CORR_ACQ_EFFT_VAL as acq_netto_resi_ann_prec, 
+	-- 	STATO_NAZIONALITA_COD AS cod_nazionalita, 
+	-- 	STATO_COD AS cod_stato,
+	-- 	OPERATORE_RIF_COD AS cod_operatore_riferimento,
+	-- 	OPERATORE2_RIF_COD AS COD_OPERATORE2_RIFERIMENTO,
+	-- 	NEGZ_OPERATORE_RIF_COD AS cod_negz_operatore_riferimento, 
+	-- 	SA_PERSONID_EXT_COD AS PERSONID_EXT_COD,
+	-- 	NEGZ_OPERATORE2_RIF_COD AS COD_NEGZ_OPERATORE2_RIF, 
+	-- 	SA2_PERSONID_EXT_COD AS PERSONID2_EXT_COD
+	-- FROM ${ref('cst_customer')}
+	-- WHERE PRIVACY_PROF_FLG <> "0" 
+	-- 	AND GENERICO_FLG = "0" 
+	-- 	AND DIPENDENTE_FLG = "0" 
+	-- 	AND OPERATORE_RIF_COD <> "nd"

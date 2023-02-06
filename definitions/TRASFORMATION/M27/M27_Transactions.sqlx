@@ -1,0 +1,62 @@
+config {
+  type: "table",
+  tags: "M27"
+}
+
+/* DOWNLOAD FROM SAS -> /* m27_Transaction__c_sql -> output */ 
+/* UPLOAD IN SALESFORCE -> Transaction__c */
+
+SELECT 
+	/* MANCA CLIE_DWH_COD */
+	OPERATORE_COD AS cashierCode,			
+	VALUTA_COD AS currencyCode,	
+	CLIENTE_COD AS origCustCode, 
+	CLIENTE_VINCENTE_COD AS sapId,						
+	CAST(DELIVERY_DTA AS DATE) AS deliveryDate,			
+	CAST(SCONTO1_RGH_LOC_VAL AS FLOAT64) AS discountAmount1,		
+	CAST(SCONTO2_RGH_LOC_VAL AS FLOAT64) AS discountAmount2,			
+	CAST(SCONTO3_RGH_LOC_VAL AS FLOAT64) AS discountAmount3,			
+	CAU_SCONTO1_RGH_COD AS discountReasonRow1,			
+	CAU_SCONTO2_RGH_COD	AS discountReasonRow2,			
+	CAU_SCONTO3_RGH_COD	AS discountReasonRow3,				
+	CASE 
+		WHEN SALDO_FLG = '1' OR UPPER(SALDO_FLG) = 'S' OR UPPER(SALDO_FLG) = 'Y' THEN 'TRUE'
+		WHEN SALDO_FLG = '0' OR UPPER(SALDO_FLG) = 'N' THEN 'FALSE'
+		ELSE SALDO_FLG
+		END AS discountFlag,
+	ECO_DOC_ORI_NUM AS ecommerceOrderNumber,		
+	S.COLORE_COD AS itemColor,		
+	TAGLIA_COD AS itemSize,					
+	SOTTO_STAGIONALITA_COD AS sottostagionalitaCode,		
+	STA_FCO_COD	AS itemStatus,		
+	S.VND_CLZ_COD	AS ItemValidityCollection,		
+	S.VND_STAG_COD AS ItemValiditySeason,		
+	S.VND_ANNO_COD AS	ItemValidityYear,	
+	S.ARTICOLO_COD AS	itemCode,		
+	CAST(IMP_COMM_LOC_VAL AS FLOAT64) AS totalAmount,				
+	PERSONID_EXT_COD AS	owner,				
+	MOTIVO_ACQ_COD AS reasonCode,					
+	-- CAST(TIPO_ACQ_COD AS FLOAT64) AS transactionType,				
+	CAST(QTA_NUM AS FLOAT64) AS quantity,			
+	CAU_RSO_RGH_COD	AS saleType,					
+	S.NEGZ_COD AS	shopCode,				
+	CAST(SEGN_QTA_COD AS INT) AS sign,				
+	CAST(TOT_NET_LOC_VAL AS FLOAT64) AS totalNetAmount,				
+	CAST(EMISSIONE_DTA AS DATE) AS transactionDate,			
+	ID_SCN_COD AS ticketHeaderId,		
+	CAST(ID_RGH_COD AS INT) AS ticketRowId,			
+	-- CASE 
+	-- 	WHEN CANCELLAZIONE_FLG = '1' OR UPPER(CANCELLAZIONE_FLG) = 'S' OR UPPER(CANCELLAZIONE_FLG) = 'Y' THEN 'TRUE'
+	-- 	WHEN CANCELLAZIONE_FLG = '0' OR UPPER(CANCELLAZIONE_FLG) = 'N' THEN 'FALSE'
+	-- 	ELSE CANCELLAZIONE_FLG
+	-- 	END AS flag_cancellazione,		
+	-- CASE 
+	-- 	WHEN DELETED_IN_DWH_FLG = '1' OR UPPER(DELETED_IN_DWH_FLG) = 'S' OR UPPER(DELETED_IN_DWH_FLG) = 'Y' THEN 'TRUE'
+	-- 	WHEN DELETED_IN_DWH_FLG = '0' OR UPPER(DELETED_IN_DWH_FLG) = 'N' THEN 'FALSE'
+	-- 	ELSE DELETED_IN_DWH_FLG
+	-- 	END AS flag_cancellazione_dwh,	
+	UDM_COD	AS unitOfMeasure,
+	CONCAT(ID_SCN_COD, '-', CAST(ID_RGH_COD AS INT)) AS RecordId__c,			
+	CONCAT(ARTICOLO_COD, '-', S.COLORE_COD, '-', S.VND_ANNO_COD, '-', S.VND_STAG_COD, '-', S.VND_CLZ_COD) AS COLORE_COD				
+FROM ${ref('sal_transazioni')} S LEFT JOIN ${ref('ang_articoli_colore')}
+USING(ARTICOLO_COD) LEFT JOIN ${ref('ang_operatori')} USING(OPERATORE_COD)

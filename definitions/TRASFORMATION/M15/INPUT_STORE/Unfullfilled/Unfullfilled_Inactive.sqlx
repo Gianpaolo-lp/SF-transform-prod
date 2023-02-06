@@ -1,0 +1,34 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* unfulfilled_inactive */
+select 'u'
+
+-- WITH unfulfilled_inactive_0 as (
+-- 	SELECT 	
+-- 		cli.cli_dwh_key,
+-- 		cli.score,
+-- 		cli.comp_store1 as cod_negz_taxi,
+-- 		cli.comp_sa1 as comp_sa,
+-- 		coalesce(openeg.cod_personid_ext,'ND') as cod_personid_ext
+-- 	FROM ${ref('LISTA_CST_STORE')}  cli
+-- 	LEFT JOIN  ${ref('OPERATORI_NEGZ')} openeg
+-- 		ON 	cli.comp_sa1 = openeg.cod_ope	
+-- 		AND	cli.comp_store1 = openeg.cod_negz
+-- 	WHERE cli.score in ('Tier 1','Tier 2','Tier 3')
+-- 		AND cli.status_cod = 'Inactive'
+-- ),
+-- unfulfilled_inactive2 as (
+-- 	SELECT 
+-- 		a.*EXCEPT(COD_NEGZ_TAXI),
+-- 		a.COD_NEGZ_TAXI as comp_store
+-- 	FROM unfulfilled_inactive_0 a
+-- 	LEFT JOIN ${ref('ANG_NEGZ')} b
+-- 		ON a.COD_NEGZ_TAXI = b.negz_cod
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM unfulfilled_inactive2
+-- ORDER BY cli_dwh_key, cod_personid_ext

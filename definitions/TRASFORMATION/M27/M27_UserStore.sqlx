@@ -1,0 +1,9 @@
+config {
+  type: "table"
+}
+
+SELECT   
+    PERSONID_EXT_COD as PersonId__c,
+    NEGZ_COD as ShopCode__c, 
+    CONCAT(PERSONID_EXT_COD, "_", NEGZ_COD) AS UserStoreKey__c
+FROM ${ref('ang_dipendentinegstr')}

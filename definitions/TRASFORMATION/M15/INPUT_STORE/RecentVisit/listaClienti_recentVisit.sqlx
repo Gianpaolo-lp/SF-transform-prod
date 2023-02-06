@@ -1,0 +1,28 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+
+select 'u'
+	-- SELECT 	
+    -- ct.CLIE_DWH_COD AS cli_dwh_key,
+	-- 	ct.status_cod,
+	-- 	ct.tier_cod	AS score,
+	-- 	af1.NEW_STORE_OF_COMPETENCE	AS comp_store1,
+	-- 	af1.NEW_SA_OF_COMPETENCE_ID		AS comp_sa1,
+	-- 	af1.SECOND_STORE_OF_COMPETENCE	AS comp_store2,
+	-- 	af1.SECOND_SA_OF_COMPETENCE_ID		AS comp_sa2,
+	-- 	ct.PRIVACY_MARK_FLG AS FLG_PRIVACY_MARK,
+	-- 	ct.PRIVACY_PROF_FLG AS FLG_PRIVACY_PROF,
+	-- 	ct.CONTATTABILE_FLG AS FLG_CONTATTABILE,
+	-- 	SUM(ct.visit_num)	AS tot_visit
+	-- FROM lp-datalake-dev.Oracle.cst_customer ct
+	-- LEFT JOIN lp-datalake-dev.test_eu.customer_sa af1 
+	-- 	ON cast(ct.CLIE_DWH_COD AS STRING) = af1.Rol_Id
+	-- WHERE ct.GENERICO_FLG = '0'
+	-- 	AND ct.DIPENDENTE_FLG = '0'
+	-- 	AND FLG_REACH_CLIENTELING = 1
+	-- 	AND ct.PRIVACY_PROF_FLG = '1'			/*Clienteling Consent*/
+	-- 	AND ct.STATUS_COD in ('Active', 'Inactive', 'Lapsed', 'NEW Activated')
+	-- GROUP BY 1,2,3,4,5,6,7,8,9,10

@@ -1,0 +1,10 @@
+config {
+  type: "table",
+  tags: "M27"
+}
+
+SELECT 
+    CAU_SCONTO_COD AS discountCode,
+    TIPO_SCONTO_COD AS discountTypeCode,
+    CAU_SCONTO_DES AS discountDescription
+FROM ${ref('ang_causalisconto')}

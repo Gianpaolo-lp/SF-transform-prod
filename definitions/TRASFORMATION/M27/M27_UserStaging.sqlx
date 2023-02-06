@@ -1,0 +1,35 @@
+config {
+  type: "table"
+}
+
+/* DOWNLOAD FROM SAS -> m27_UserStaging__c_sql -> output */ 
+/* UPLOAD IN SALESFORCE -> UserStaging__c */
+
+SELECT 
+    EMAIL_COD AS email,	
+    NOME_DES AS firstName,				
+    -- CASE 
+    --     WHEN ATTIVO_FLG = '1' OR UPPER(ATTIVO_FLG) = 'S' OR UPPER(ATTIVO_FLG) = 'Y' THEN 'TRUE'
+    --     WHEN ATTIVO_FLG = '0' OR UPPER(ATTIVO_FLG) = 'N' THEN 'FALSE'
+    --     ELSE ATTIVO_FLG
+    --     END AS flgActive,		
+    MANSIONE_COD AS jobCode,				
+    MANSIONE_IT_DES AS jobDescriptionIT,
+    MANSIONE_EN_DES AS jobDescriptionEN,	
+    COGNOME_DES AS lastName,			
+    PERSONID_EXT_COD AS personID,			
+    RESP_PERSONID_EXT_COD AS respPersonIDextCod,	
+    NEGZ_COD AS shopCode,			
+    -- CASE 
+    --     WHEN SF_DISATTIVAZIONE_FLG = '1' OR UPPER(SF_DISATTIVAZIONE_FLG) = 'S' OR UPPER(SF_DISATTIVAZIONE_FLG) = 'Y' THEN 'TRUE'
+    --     WHEN SF_DISATTIVAZIONE_FLG = '0' OR UPPER(SF_DISATTIVAZIONE_FLG) = 'N' THEN 'FALSE'
+    --     ELSE SF_DISATTIVAZIONE_FLG
+    --     END AS Deactivation,		
+    -- CASE 
+    --     WHEN SF_ATTIVAZIONE_FLG = '1' OR UPPER(SF_ATTIVAZIONE_FLG) = 'S' OR UPPER(SF_ATTIVAZIONE_FLG) = 'Y' THEN 'TRUE'
+    --     WHEN SF_ATTIVAZIONE_FLG = '0' OR UPPER(SF_ATTIVAZIONE_FLG) = 'N' THEN 'FALSE'
+    --     ELSE SF_ATTIVAZIONE_FLG
+    --     END AS Actiovation,	/*Activation ? */		
+    CELL_PERS_DES AS MobilePhone, 			
+    PEOPLE_MANAGER_FLG AS PeopleManagerFlag	
+FROM ${ref('ang_dipendentinegstr')}

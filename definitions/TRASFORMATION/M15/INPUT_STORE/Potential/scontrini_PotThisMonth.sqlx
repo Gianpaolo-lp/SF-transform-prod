@@ -1,0 +1,38 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+
+select 'u'
+
+
+	-- SELECT 	
+    --     cli.cli_dwh_key,
+	-- 	incNeg.cod_negz_taxi,
+	-- 	CASE 
+    --         WHEN cli.comp_store1 = incNeg.cod_negz_taxi THEN cli.comp_sa1
+	-- 		ELSE cli.comp_sa2 
+    --         END AS comp_sa,
+	-- 	CASE 
+    --         WHEN cli.comp_store1 = incNeg.cod_negz_taxi THEN 1
+	-- 		ELSE 2
+    --         END AS comp_store_num,
+	-- 	coalesce(openeg.cod_personid_ext,'ND') AS cod_personid_ext ,
+	-- 	sum(incNeg.imp_eur) AS sum_Importo
+	-- FROM ${ref('LISTA_CST_STORE')} cli
+    --     LEFT JOIN ${ref('INCASSI_NEGZ')} incNeg
+    --         ON incNeg.cli_dwh_key = cli.cli_dwh_key
+    --         AND (	cli.comp_store1 = incNeg.cod_negz_taxi
+    --         OR 	cli.comp_store2 = incNeg.cod_negz_taxi)
+    --     LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+    --         ON 	openeg.cod_negz = incneg.cod_negz_taxi
+    --         AND ( (	cli.comp_sa1 = openeg.cod_ope	AND	cli.comp_store1 = openeg.cod_negz )
+    --         OR(	cli.comp_sa2 = openeg.cod_ope	AND	cli.comp_store2 = openeg.cod_negz ))
+	-- WHERE DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(DATE_SUB(CURRENT_DATE(), INTERVAL 24 MONTH), month) 
+    --     OR (DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH), month))
+	-- 	AND cli.score in ('Tier 1','Tier 2','Tier 3')
+	-- GROUP BY 1,2,3,4,5
+	-- HAVING sum_Importo >= 0.01
+    --     AND cli_dwh_key = min(cli_dwh_key)
+	-- ORDER BY cli_dwh_key, comp_store_num

@@ -1,0 +1,18 @@
+config {
+  type: "table"
+}
+
+SELECT 
+    NOME_OPERATORE_COD AS firstName,			
+    CASE 
+        WHEN SOSPESO_FLG = '1' OR UPPER(SOSPESO_FLG) = 'S' OR UPPER(SOSPESO_FLG) = 'Y' THEN 'TRUE'
+        WHEN SOSPESO_FLG = '0' OR UPPER(SOSPESO_FLG) = 'N' THEN 'FALSE'
+        ELSE SOSPESO_FLG
+        END AS suspendedFlag,		
+    COGNOME_OPERATORE_COD AS lastName,				
+    OPERATORE_COD AS operatorCode,			
+    PERSONID_EXT_COD AS personId,				
+    CONCAT(NEGZ_COD, '-', OPERATORE_COD) AS recordId,			
+    NEGZ_COMP_COD AS competenceShopCode,		
+    NEGZ_COD AS shopCode				
+FROM ${ref('ang_operatori')}

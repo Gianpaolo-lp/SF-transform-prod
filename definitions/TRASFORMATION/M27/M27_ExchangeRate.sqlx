@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  tags: "M27"
+}
+
+
+/* DOWNLOAD FROM SAS -> /* m27_ExchangeRate__c_sql -> output */ 
+/* UPLOAD IN SALESFORCE -> ExchangeRate__c */
+
+WITH T1 AS (
+    SELECT 	
+        REPLACE((REPLACE(VALUTA_COD, '0A', ' ')), '0D', ' ') AS currencyCode,
+        CAST(FATT_CAMB_VAL AS FLOAT64) AS exchangeRate,		
+        CASE 
+            WHEN ULTIMOMESE_ACTUAL_FLG = '1' OR UPPER(ULTIMOMESE_ACTUAL_FLG) = 'S' OR UPPER(ULTIMOMESE_ACTUAL_FLG) = 'Y' THEN 'TRUE'
+            WHEN ULTIMOMESE_ACTUAL_FLG = '0' OR UPPER(ULTIMOMESE_ACTUAL_FLG) = 'N' THEN 'FALSE'
+            ELSE ULTIMOMESE_ACTUAL_FLG
+            END AS lastMonth,		
+        MESE_COD AS	monthCode,			
+        ANNO_COD AS	yearCode							
+    FROM ${ref('ang_cambimensili')}
+)
+SELECT 
+    *,
+    CONCAT(UPPER(currencyCode), '', yearCode, '', monthCode) as recordId
+FROM T1

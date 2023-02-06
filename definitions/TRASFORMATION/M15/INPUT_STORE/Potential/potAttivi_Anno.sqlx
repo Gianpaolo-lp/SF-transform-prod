@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* potAttivi_Anno */
+
+select 'u'
+
+-- WITH potAttivi_Anno_0 AS (
+-- /****	LAST 12 MONTHS	****/
+--     SELECT DISTINCT	
+--         cli.cli_dwh_key,
+--         cli.comp_store1 AS comp_store,
+--         cli.comp_sa1 AS comp_sa,
+--         coalesce(openeg.cod_personid_ext,'ND') AS cod_personid_ext
+--     FROM  ${ref('LISTA_CST_STORE')}  cli
+--     LEFT JOIN  ${ref('OPERATORI_NEGZ')}  openeg
+--         ON 	openeg.cod_negz = cli.comp_store1
+--         AND openeg.cod_ope = cli.comp_sa1
+--     WHERE 	cli.status_cod = 'Active'
+--         AND cli.comp_sa1 IS NOT NULL
+-- 	UNION ALL
+--     SELECT DISTINCT	
+--         cli.cli_dwh_key,
+--         cli.comp_store2 AS comp_store,
+--         cli.comp_sa2 AS comp_sa,
+--         coalesce(openeg.cod_personid_ext,'ND') AS cod_personid_ext
+--     FROM ${ref('LISTA_CST_STORE')} cli
+--     LEFT JOIN ${ref('OPERATORI_NEGZ')}   openeg
+--         ON 	openeg.cod_negz = cli.comp_store2
+--         AND openeg.cod_ope = cli.comp_sa2
+--     WHERE 	cli.status_cod = 'Active'
+--         AND cli.comp_sa2 IS NOT NULL
+-- ),
+-- potAttivi_Anno2 AS (
+-- 	SELECT a.*
+-- 	FROM potAttivi_Anno_0 a
+--         LEFT JOIN ${ref('ANG_NEGZ')} b
+--         on a.comp_store = b.negz_cod 
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM potAttivi_Anno2

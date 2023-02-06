@@ -1,0 +1,39 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+select 'a'
+
+    -- SELECT 
+    --     ct.CLIE_DWH_COD AS cli_dwh_key,
+    --     ct.status_cod,
+    --     ct.tier_cod                    AS score,
+    --     af1.NEW_STORE_OF_COMPETENCE    AS comp_store1,
+    --     af1.NEW_SA_OF_COMPETENCE_ID    AS comp_sa1,
+    --     COALESCE(openeg1.cod_personid_ext, 'ND') AS cod_personid_ext1,
+    --     af1.SECOND_STORE_OF_COMPETENCE AS comp_store2,
+    --     af1.SECOND_SA_OF_COMPETENCE_ID AS comp_sa2,
+    --     COALESCE(openeg2.cod_personid_ext, 'ND') AS cod_personid_ext2,
+    --     ct.PRIVACY_MARK_FLG AS PRIVACY_MARK_FLG,
+    --     ct.PRIVACY_PROF_FLG AS PRIVACY_PROF_FLG,
+    --     ct.CONTATTABILE_FLG AS FLG_CONTATTABILE,
+    --     max(CAST(acc.PRIMO_ACQ_DTA AS DATE)) AS DATA_PRIM_ACQ,
+    --     sum(acc.VISIT_NUM) AS tot_visit
+    -- FROM ${ref('cst_customer')} ct
+    -- LEFT JOIN lp-datalake-dev.dataform.ACTIVE_CUSTOMER_MONTH_FINAL acc
+    --     ON ct.CLIE_DWH_COD = acc.CLI_DWH_KEY
+    -- LEFT JOIN lp-datalake-dev.test_eu.customer_sa af1
+    --     ON cast(ct.clie_dwh_cod AS STRING) = af1.rol_id
+    -- LEFT JOIN  ${ref('OPERATORI_NEGZ')}  openeg1
+    --     ON openeg1.COD_NEGZ = af1.NEW_STORE_OF_COMPETENCE
+    --         AND openeg1.cod_ope = af1.NEW_SA_OF_COMPETENCE_ID
+    -- LEFT JOIN  ${ref('OPERATORI_NEGZ')}  openeg2
+    --     ON openeg2.COD_NEGZ = af1.SECOND_STORE_OF_COMPETENCE
+    --         AND openeg2.cod_ope = af1.SECOND_SA_OF_COMPETENCE_ID
+    -- WHERE ct.GENERICO_FLG = '0'
+    --     AND ct.DIPENDENTE_FLG = '0'
+    --     AND ct.FLG_REACH_CLIENTELING = 1
+    --     AND ct.PROFESSIONE_COD = '1'			/*Clienteling Consent*/
+    --     AND ct.status_cod in ('NEW Activated', 'NEW Acquired')
+    -- GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12

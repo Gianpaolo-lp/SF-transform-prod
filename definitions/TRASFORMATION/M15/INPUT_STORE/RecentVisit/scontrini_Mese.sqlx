@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+select 'u'
+-- WITH 
+-- scontrini_Mese_r AS (
+-- 	SELECT distinct 
+-- 		cli.cli_dwh_key,
+-- 		CAST(data_ems_doc AS DATE) AS data_ems_doc,
+--         incNeg.cod_negz_taxi AS cod_negz_taxi,
+--         incNeg.cod_ope AS cod_ope,
+-- 		coalesce(openeg.cod_personid_ext, 'ND') AS cod_personid_ext,
+-- 		CASE 
+-- 			WHEN cli.comp_store1 = incNeg.cod_negz_taxi	THEN cli.comp_sa1
+-- 			ELSE cli.comp_sa2
+-- 			END AS comp_sa,
+-- 		sum(incNeg.imp_eur) AS  sum_Importo
+-- 	FROM ${ref('listaClienti_recentVisit')} cli
+-- 	LEFT JOIN ${ref('INCASSI_NEGZ')} incNeg
+-- 		ON incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 			and (cli.comp_store1 = incNeg.cod_negz_taxi 
+-- 			or cli.comp_store2 = incNeg.cod_negz_taxi)
+-- 	LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 		ON openeg.cod_negz = incneg.cod_negz_taxi
+-- 			and openeg.cod_ope = incneg.cod_ope
+-- 	WHERE incNeg.data_ems_doc >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)
+-- 		and incNeg.data_ems_doc < CURRENT_DATE()
+-- 		and cli.status_cod = 'Active'
+-- 		and cli.tot_visit > 1
+--     GROUP BY 1,2,3,4,5,6
+--     having sum_Importo >= 15000
+--         and ((extract(month FROM data_ems_doc) between 4 and 8)
+--                 or sum_Importo >= 25000)
+--         and cod_ope = comp_sa
+-- )
+-- SELECT
+--     a.*except (cod_negz_taxi),
+--     a.cod_negz_taxi AS comp_store
+-- FROM scontrini_Mese_r a
+-- LEFT JOIN ${ref('ANG_NEGZ')}b
+--         on a.cod_negz_taxi  = b.negz_cod
+-- WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'

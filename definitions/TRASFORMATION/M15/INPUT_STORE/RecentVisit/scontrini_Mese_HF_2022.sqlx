@@ -1,0 +1,74 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* scontrini_Mese_Hf_2022 */
+
+select 'u'
+
+-- WITH
+-- /* LAST 30 DAYS VISITS HIROSHI FUJIWANA */
+-- incassi_negozi_hf AS (
+-- 	SELECT 
+-- 		CLIE_DWH_COD AS cli_dwh_key,
+-- 		CLASSE_COD AS COD_CLA,
+--         CAST(DATA_EMISSIONE_DOC1 AS DATE) AS data_ems_doc,
+--         NEGZ_COD AS cod_negz_taxi,
+--         OPERATORE_COD AS cod_ope,
+--         SUM(imp_eur) AS imp_eur,
+-- 		MAX(CASE WHEN substr(inc.articolo_cod,1,7) IN (SELECT fam FROM lp-datalake-dev.SF_Trasformation.M15_HF_list) THEN 1 ELSE 0 END) AS flag_hf
+-- 	FROM lp-datalake-dev.test_eu.sal_transazioni_eur inc
+-- 		LEFT JOIN lp-datalake-dev.Oracle.ang_articoli anag
+-- 			ON anag.ARTICOLO_COD = inc.ARTICOLO_COD
+-- 	WHERE CAU_RSO_RGH_COD in ('VEN', 'RES', 'SPE')
+-- 	GROUP BY 1,2,3,4,5
+-- ),
+-- incassi_negozi_hf2 AS (
+-- 	SELECT 
+-- 		cli_dwh_key,
+-- 		data_ems_doc, 
+-- 		cod_negz_taxi,
+-- 		cod_ope,
+-- 		imp_eur,
+-- 		max(flag_hf) AS flag_hf
+-- 	FROM incassi_negozi_hf
+-- 	GROUP BY 1,2,3,4,5
+-- 	HAVING flag_hf = 1
+-- ),
+-- incassi_negozi_hf_temp AS (
+-- 	SELECT 
+-- 		cli.cli_dwh_key,
+-- 		incNeg.data_ems_doc AS data_ems_doc,	
+-- 		incNeg.cod_negz_taxi AS comp_store,
+-- 		neg.canale_cod,
+-- 		incneg.cod_ope AS comp_sa,
+-- 		coalesce(openeg.cod_personid_ext, 'ND') AS cod_personid_ext,
+-- 		sum(incNeg.imp_eur) AS sum_Importo 		
+-- 	FROM ${ref('listaClienti_recentVisit')} cli
+-- 		LEFT JOIN incassi_negozi_hf2 incNeg
+-- 			ON incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 		LEFT JOIN ${ref('OPERATORI_NEGZ')} openeg
+-- 			ON openeg.cod_negz = incneg.cod_negz_taxi
+-- 				and openeg.cod_ope = incneg.cod_ope
+-- 		LEFT JOIN ${ref('ANG_NEGZ')} Neg
+-- 			ON incNeg.cod_negz_taxi = neg.negz_cod
+-- 	WHERE incNeg.data_ems_doc >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)
+-- 		AND incNeg.data_ems_doc < CURRENT_DATE()
+-- 		AND cli.tot_visit > 1
+-- 	GROUP BY 1,2,3,4,5,6
+-- 	HAVING sum_Importo >= 0.01
+-- ),
+-- scontrini_Mese_Hf AS (
+-- 	SELECT 
+-- 		cli_dwh_key,
+-- 		FIRST_VALUE(comp_store) OVER (PARTITION BY cli_dwh_key ORDER BY cli_dwh_key, data_ems_doc, comp_store) AS comp_store,
+-- 		comp_sa,
+-- 		cod_personid_ext
+-- 	FROM incassi_negozi_hf_temp
+-- )
+-- SELECT a.*
+-- FROM scontrini_Mese_Hf a
+-- 	LEFT JOIN ${ref('ANG_NEGZ')} b
+--         on a.comp_store = b.negz_cod
+-- WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'

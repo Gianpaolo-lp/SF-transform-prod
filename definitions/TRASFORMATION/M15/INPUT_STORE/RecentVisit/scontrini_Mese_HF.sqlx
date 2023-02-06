@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+
+select 'u'
+
+-- SELECT
+-- *
+-- FROM ${ref('scontrini_Mese_Hf_2022')}
+-- where 1 = 2

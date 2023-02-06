@@ -1,0 +1,39 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* scontrini_ThisMonthFinal */
+
+select 'u'
+
+-- WITH
+-- scontrini_ThisMonth AS (
+--     SELECT	
+--         pm.cli_dwh_key,
+--         incNeg.data_ems_doc AS data_ems_doc,
+--         incNeg.cod_negz_taxi,
+--         neg.canale_cod,
+--         sum(incNeg.imp_eur) AS sum_Importo
+--     FROM ${ref('scontrini_PotThisMonth')} pm
+--         LEFT JOIN ${ref('INCASSI_NEGZ')} incNeg
+--             ON incNeg.cli_dwh_key = pm.cli_dwh_key
+--         LEFT JOIN  ${ref('ANG_NEGZ')} Neg
+--             ON	incNeg.cod_negz_taxi = neg.negz_cod
+--     WHERE DATE_TRUNC(incNeg.data_ems_doc, MONTH) = date_trunc(CURRENT_DATE(), month) 
+--         AND canale_cod in ('STO','ECO')
+--     GROUP BY 1,2,3,4
+--     HAVING sum_Importo >= 0.01
+-- ),
+-- scontrini_ThisMonthFinal_0 AS (
+--     SELECT *
+--     FROM ${ref('scontrini_PotThisMonth')}
+--     WHERE cli_dwh_key NOT IN (
+--         SELECT cli_dwh_key
+--         FROM scontrini_ThisMonth
+--     )
+-- )
+-- SELECT *EXCEPT(cod_negz_taxi),
+--     cod_negz_taxi AS comp_store
+-- FROM scontrini_ThisMonthFinal_0
+-- ORDER BY cli_dwh_key, cod_personid_ext

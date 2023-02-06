@@ -1,0 +1,61 @@
+config {
+  type: "table",
+  tags: 'M15'
+}
+
+/* unfulfilled_active */
+
+select 'u'
+
+-- WITH unfulfilled_active_0 as (
+-- 		SELECT 
+-- 		 	cli.cli_dwh_key,
+-- 			cli.score,
+-- 			cli.comp_store1 as cod_negz_taxi,
+-- 			cli.comp_sa1 as comp_sa,
+-- 			coalesce(openeg.cod_personid_ext,'ND') as cod_personid_ext,
+-- 			sum(case 
+-- 					when EXTRACT(YEAR FROM incNeg.data_ems_doc) = EXTRACT(YEAR FROM CURRENT_DATE()) 
+-- 					AND incNeg.data_ems_doc < CURRENT_DATE() then incNeg.imp_eur
+-- 				else 0 end) as sum_Importo_TYTD,
+-- 			sum(case 
+-- 					when EXTRACT(YEAR FROM incNeg.data_ems_doc) = (EXTRACT(YEAR FROM CURRENT_DATE()) - 1) 
+-- 					AND incNeg.data_ems_doc < DATE_SUB(CURRENT_DATE, INTERVAL 1 YEAR )  then incNeg.imp_eur
+-- 				else 0 end) as sum_Importo_LYTD
+-- 		FROM ${ref('LISTA_CST_STORE')} cli
+-- 		LEFT JOIN ${ref('INCASSI_NEGZ')}  incNeg
+-- 			ON incNeg.cli_dwh_key = cli.cli_dwh_key
+-- 		LEFT JOIN  ${ref('OPERATORI_NEGZ')}  openeg
+-- 			ON 	cli.comp_sa1 = openeg.cod_ope	
+-- 			AND	cli.comp_store1 = openeg.cod_negz
+-- 		WHERE 	cli.score in ('Tier 1','Tier 2','Tier 3')
+-- 			AND cli.status_cod = 'Active'
+-- 		group by 1,2,3,4,5
+-- 		ORDER BY cli_dwh_key
+-- ),
+-- unfulfilled_active_1 AS (
+-- 	SELECT 
+-- 		*,
+-- 		case 
+-- 			when  sum_Importo_LYTD <= 0 then 0
+-- 			else ( sum_Importo_TYTD - sum_Importo_LYTD) /  sum_Importo_LYTD 
+-- 		end as var_Importo
+-- 	FROM unfulfilled_active_0
+-- 	GROUP BY 1,2,3,4,5,6,7
+-- 	having ((score in ('Tier 1','Tier 2')
+-- 					AND var_Importo <= -0.10)
+-- 				or	(score in ('Tier 3')
+-- 					AND var_Importo <= -0.20))
+-- ),
+-- unfulfilled_active2 as (
+-- 	SELECT 
+-- 		a.*EXCEPT(COD_NEGZ_TAXI),
+-- 		a.COD_NEGZ_TAXI as comp_store
+-- 	FROM unfulfilled_active_1 a
+-- 	LEFT JOIN ${ref('ANG_NEGZ')}  b
+-- 		ON a.COD_NEGZ_TAXI = b.negz_cod
+-- 	WHERE substr(TIPO_UNIT_DES,1,6) <> 'OUTLET'
+-- )
+-- SELECT *
+-- FROM unfulfilled_active2
+-- ORDER BY cli_dwh_key, cod_personid_ext
