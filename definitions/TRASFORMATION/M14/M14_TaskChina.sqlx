@@ -23,7 +23,7 @@ Task_Id as TASK_COD,
 Activity_SA_Employee_ID as PERSON_ID_COD,
 Campaign as CAMP_ID_COD,
 MACRO_TYPE as MACRO_TYPE_COD,
-CheckInStore_TaxiShopCode as CHECKIN_SHOP_COD,
+CheckInStore__r_TaxiShopCode__c as CHECKIN_SHOP_COD,
 Activity_Store_ID as ACTIVE_STORE_ID_COD,
 Consignment_Status as CONS_STATUS_COD,
 Remote_Selling_Status as REMOTE_SELL_STATUS_COD,
@@ -36,7 +36,7 @@ RemoteSellingSecondStatusUpdate as REMOTE_SELLING_SECOND_UPDATE_DTE,
 ConsignmentFirstStatusUpdate as CONS_SELLING_FIRST_UPDATE_DTE,
 ConsignmentSecondStatusUpdate as CONS_SELLING_SECOND_UPDATE_DTE
  FROM ${ref('M14_Task_Export_Full')}
- WHERE split(rolId,'.')[offset(0)] in (
+ WHERE split(Client_ROL_ID,'.')[offset(0)] in (
    SELECT
    CAST(CLIE_DWH_COD AS STRING)
    FROM ${ref('cst_customer')}

@@ -220,7 +220,11 @@ TASK3_0 AS (
 /* in sas: TASK_FIN_NEW  */
 TASK_FIN_NEW AS (
   SELECT
-      * EXCEPT(CampaignID),
+      * EXCEPT(CampaignID,
+	  		   Consignment_Contact,
+			   RemoteSelling_Contact,
+			   Consignment_Activities,
+			   Remote_Activities),
       CASE
           WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
           WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
@@ -287,19 +291,33 @@ SELECT DISTINCT
 	cli_nome AS Client_Name,
 	cli_cgn AS Client_Last_Name,     
 	cli_tel_cel AS Mobile_Phone,     
-	cli_email AS Email,                          
+	cli_email AS Email,  
+	WhoId,
+	Status,                        
 	Subject AS Subject,             
 	Macro_Type AS Macro_Type,     
 	Type AS Type,             
-	EventConfirmation AS Event_Confirmation,     
+	EventConfirmation AS Event_Confirmation,   
+	ExperienceRating,  
 	CheckInMissedPurchase AS Check_in_Missed_Purchase,     
 	CheckInStore_TaxiShopCode AS CheckInStore__r_TaxiShopCode__c,         
-	ContactedThroughGaisho AS Contacted_through_Gaisho,     
-	ConsignmentStatus AS Consignment_Status,    
-	ContactedThroughConcierge AS E_Concierge,    
-	RemoteSellingStatus AS Remote_Selling_Status,     
+	ContactedThroughGaisho AS Contacted_through_Gaisho, 
+	Consignment, 
+	ConsignmentStatus AS Consignment_Status, 
+	a.Consignment_Contact,   
+	Consignment_Activities,
+	ConsignmentFirstStatusUpdate,
+	ConsignmentSecondStatusUpdate,
+	ContactedThroughConcierge AS E_Concierge,  
+	RemoteSelling,  
+	RemoteSellingStatus AS Remote_Selling_Status,
+	RemoteSelling_Contact,   
+	Remote_Activities,  
+	RemoteSellingFirstStatusUpdate,
+	RemoteSellingSecondStatusUpdate,
 	Description AS Description,                                   
 	CreatedDate AS Created_Date,   
+	CreatedById,
 	LastModifiedDate AS Last_Modified_Date,    
 	ActivityDate AS Activity_Date,    
 	ActUser_PersonID AS Activity_SA_Employee_ID,  
@@ -324,6 +342,9 @@ SELECT DISTINCT
 	des_negz2 AS Store_of_Comp_2,    
 	des_area_geo2 AS Region_Store_of_Comp_2,     
 	des_stato2 AS Country_Store_of_Comp_2,
+	isFullDay,
+	a.Id as Task_Id,
+	Campaign
 FROM TASK4 a 
 	LEFT JOIN CONTACT_CUSTOMER_OPERATORI_NEGOZI b 
 		ON a.WhoId = b.id
