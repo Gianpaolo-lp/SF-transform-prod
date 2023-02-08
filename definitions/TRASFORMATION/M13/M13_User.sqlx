@@ -7,7 +7,7 @@ SELECT
     Name,
     Id,   
     CASE WHEN CONTAINS_SUBSTR(PersonId__c,'Test') = False THEN
-    CAST(CAST(IF(PersonId__c='nd' OR PersonId__c LIKE 'SEDE%' OR PersonId__c LIKE 'SPECIAL%', NULL, PersonId__c) AS INT) AS STRING FORMAT '00000000')
+    CAST(CAST(IF(PersonId__c='nd' OR PersonId__c LIKE 'SEDE%' OR PersonId__c LIKE 'sede%' OR PersonId__c LIKE 'SPECIAL%', NULL, PersonId__c) AS INT) AS STRING FORMAT '00000000')
     ELSE NULL
     END AS PersonId__c, 
     JobCode__c, 
