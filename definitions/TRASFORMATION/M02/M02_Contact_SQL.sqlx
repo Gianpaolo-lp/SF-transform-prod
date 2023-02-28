@@ -90,15 +90,12 @@ SELECT
   LastYearFullYear as LastYearFullYear__c,
   LastYearOfPurchase as LastYearOfPurchase__c,
   LastYearToDate as LastYearToDate__c,
-  MailingCity,
-  MailingCountry,
-  MailingPostalCode,
-  MailingState,
-  MailingStreet,
+  
+
   MarketingConsent as MarketingConsent__c,
-  MasterRecordId,
+
   MobilePhone,
-  Name,
+
   NationalityProvince, --CAMPO RELAZIONALE
   Nationality, --CAMPO RELAZIONALE
   CASE
@@ -127,7 +124,7 @@ SELECT
   OtherPhone,
   OwnerId, --CAMPO RELAZIONALE
   PassportNumber AS PassportNumber__c,
-  Phone,
+
   PreferredContactMethod AS PreferredContactMethod__c,
   Profession AS Profession__c,
   ProfilingConsent AS ProfilingConsent__c,
@@ -141,21 +138,19 @@ SELECT
   Source AS Source__c,
   State AS State__c,
   Status AS Status__c,
-  CASE 
-    WHEN SystemModstamp = '' THEN NULL
-    ELSE CAST(SystemModstamp AS TIMESTAMP) END AS SystemModstamp,
+
   TaxIdNumber as TaxIdNumber__C,
-  Title,
+
   CASE
     WHEN UPPER(ToDelete ) IN ('TRUE', 'T')    THEN '1'
     WHEN UPPER(ToDelete ) IN ('FALSE', 'F')    THEN '0'
     END AS ToDelete__c,
-  Unionid as Unionid__c,
+
   CASE
     WHEN UPPER(UnreachableAddress ) IN ('TRUE', 'T')  THEN '1'
     WHEN UPPER(UnreachableAddress ) IN ('FALSE', 'F')  THEN '0'
     END AS UnreachableAddress__c,
-  VIP as VIP__c,
+
   VatNumber as VatNumber__C,
   NewsletterConsent as NewsletterConsent__c,
   CASE
@@ -210,8 +205,23 @@ SELECT
   RolAcquisitionDate as RolAcquisitionDate__c,
   RolRegistrationStore_TaxiShopCode,--CAMPO RELAZIONALE, 
   RegistrationSaleAssistant_PersonId--CAMPO RELAZIONALE,
+/*Rimossi dal mapping su richiesta DWH Jakala 17gen2023*/
+  -- MailingCity,
+--   MailingCountry,
+  -- MailingPostalCode,
+  -- MailingState,
+  -- MailingStreet,
+  -- MasterRecordId,
+  -- Name,
+  -- Phone,
+  -- CASE 
+  --   WHEN SystemModstamp = '' THEN NULL
+  -- ELSE CAST(SystemModstamp AS TIMESTAMP) END AS SystemModstamp,
+  -- Title,
+  -- VIP as VIP__c,
+  -- Unionid as Unionid__c,
 
-  
+
 FROM  ${ref('Contact_S')} left join ${ref('Contact_S1')} using (Id)
 WHERE (Source = 'WeChat' OR CAST(LastModifiedDate__c AS TIMESTAMP) >= CAST(CONCAT(CURRENT_DATE(), ' ', '20:15:00 UTC') AS TIMESTAMP))
   AND SapId <> ''

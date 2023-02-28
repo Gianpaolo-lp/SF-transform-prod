@@ -58,5 +58,7 @@ SELECT
     KPI9Title__c,
     KPI10Title__c,
     SaleAssistant__r_PersonId__c,
-    SaleAssistantShopCode__c
+    SaleAssistantShopCode__c,
+    TooEarlyToAssess_SA__c,
+    TooEarlyToAssess_SM__c
 FROM ${ref('CoachingPeriodStatus__c')}

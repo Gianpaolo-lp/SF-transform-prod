@@ -154,6 +154,6 @@ lower(IsDeleted) as IsDeleted,
   lower(S1.VIP) as VIP, --lower
   S1.WeChatSource,
   S1.WeChatStore, 
-
+ToDelete -- new
 FROM ${ref('Contact_S')} S inner join ${ref('Contact_S1')} S1  USING(Id)
 WHERE RecordType_DeveloperName in ('Customer','Prospect')
