@@ -12,17 +12,6 @@
           ]
         },
         {
-          "name": "production_schedule",
-          "cron": "33 17 * * *",
-          "tags": [
-            "M01"
-          ],
-          "options": {
-            "includeDependencies": true
-          },
-          "disabled": true
-        },
-        {
           "name": "Marketing_Automation",
           "cron": "0 15 * * *",
           "tags": [
@@ -34,17 +23,6 @@
             "includeDependents": true
           },
           "disabled": false
-        },
-        {
-          "name": "Export Qlik",
-          "cron": "0 12 * * *",
-          "tags": [
-            "M13",
-            "M14"
-          ],
-          "options": {
-            "includeDependencies": false
-          }
         }
       ],
       "gitRef": "master"

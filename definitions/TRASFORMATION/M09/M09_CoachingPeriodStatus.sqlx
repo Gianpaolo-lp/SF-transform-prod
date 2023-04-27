@@ -3,6 +3,7 @@ config {
   tags: "M09"
 }
 
+
 SELECT
     ManagerPersonId__c,
     Id,
@@ -61,4 +62,71 @@ SELECT
     SaleAssistantShopCode__c,
     TooEarlyToAssess_SA__c,
     TooEarlyToAssess_SM__c
+FROM ${ref('CoachingPeriodStatus__c')};
+
+DELETE FROM SF_Trasformation.CoachingPeriodStatus_History
+where Id in (SELECT Id from ${ref('CoachingPeriodStatus__c')} where DATE(LastModifiedDate)>= CURRENT_DATE()-5);
+
+INSERT INTO SF_Trasformation.CoachingPeriodStatus_History (
+    SELECT
+    CoachingPeriod__c,
+CreatedById,
+Id,
+KPI10Title__c,
+KPI10__c,
+KPI1__c,
+KPI2__c,
+KPI3Title__c,
+KPI3__c,
+KPI4Title__c,
+KPI4__c,
+KPI5Title__c,
+KPI5__c,
+KPI6Title__c,
+KPI6__c,
+KPI7Title__c,
+KPI7__c,
+KPI8Title__c,
+KPI8__c,
+KPI9Title__c,
+KPI9__c,
+LastModifiedById,
+ManagerPersonId__c,
+Name,
+OwnerId,
+Priority1Title__c,
+Priority1__c,
+Priority2Title__c,
+Priority2__c,
+Priority3Title__c,
+Priority3__c,
+RecordId__c,
+SaleAssistantComment__c,
+SaleAssistantShopCode__c,
+SaleAssistantStatus__c,
+SA_ManagerPersonId__c,
+SaleAssistant__r_PersonId__c,
+SaleAssistant__r_ShopCode__c,
+Source__c,
+StoreManagerComment__c,
+StoreManagerStatus__c,
+CASE 
+        WHEN CreatedDate NOT IN ('', 'null') THEN STRING(CAST(SUBSTR(CreatedDate, 1, 19) AS TIMESTAMP))
+        ELSE NULL 
+        END AS CreatedDate,
+CASE 
+        WHEN LastModifiedDate NOT IN ('', 'null') THEN STRING(CAST(SUBSTR(LastModifiedDate, 1, 19) AS TIMESTAMP))
+        ELSE NULL 
+        END AS LastModifiedDate,
+CASE 
+        WHEN ClosureDate__c NOT IN ('', 'null') THEN STRING(CAST(SUBSTR(ClosureDate__c, 1, 19) AS TIMESTAMP))
+        ELSE NULL 
+        END AS ClosureDate__c,
+DATE(ReviewDate__c),
+CAST(split(SaleAssistantOverallEvaluation__c,'.')[offset(0)] AS INT),
+CAST(split(StoreManagerOverallEvaluation__c,'.')[offset(0)] AS INT),
+CAST(TooEarlyToAssess_SA__c AS BOOL),
+CAST(TooEarlyToAssess_SM__c AS BOOL)
 FROM ${ref('CoachingPeriodStatus__c')}
+where DATE(LastModifiedDate)>= CURRENT_DATE()-5)
+

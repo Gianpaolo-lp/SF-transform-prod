@@ -130,11 +130,12 @@ TASK0 AS (
         *,
         -- Id, WhoId, CreatedById, Subject, HistoryKey,ActivityDate,
         -- MAX(ActivityDate) OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate) AS MAX_ACT_PER_GROUP
-        ROW_NUMBER() OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate DESC, CreatedDate DESC) AS RN_AC
+        ROW_NUMBER() OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate DESC) AS RN_AC
     FROM ${ref('M13_Task')}
     -- SELECT * FROM test_eu.task_rn
-),
-TASK1 AS (
+)
+-- ,
+-- TASK1 AS (
     SELECT 
         a.* EXCEPT(TYPE, DESCRIPTION),
         -- FIRST_VALUE(ActivityDate) OVER (PARTITION BY WhoId, CreatedById, Subject, HistoryKey,ActivityDate ORDER BY WhoId, CreatedById, Subject, HistoryKey, ActivityDate DESC, LastModifiedDate) AS ActivityDate,
@@ -146,174 +147,178 @@ TASK1 AS (
             END AS TYPE,
         CASE 
             WHEN a.type = 'Check In' then  'Check In'
-            WHEN a.type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contract'
+            WHEN a.type IN ('Chat','Email','KakaoTalk','Line','Paper Card','Phone','SMS','WeChat','Whatsapp','Whatsapp Business','Facetime','Signal') THEN 'Contact'
             ELSE 'Delighting'
             END AS MACRO_TYPE,
         REPLACE(a.Description, '\\n', '') AS Description
     FROM TASK0 a
-        WHERE RN_AC = 1
+        WHERE 
+		RN_AC = 1 and 
+		id = '00T1t00000NK6jgEAD' 
+		-- and
+		--  HistoryKey = '1102925_040_7Day_20200219_00003071'
         -- INNER JOIN TASK0 b
         --     -- ON a.ActivityDate = b.MAX_ACT_PER_GROUP AND a.Id = b.Id
         --     ON CONCAT(a.ID, a.ActivityDate) = CONCAT(b.Id, b.MAX_ACT_PER_GROUP)
-),
-/* it adds some M13_USER fields into the TASK1 table */
-TASK2 AS (
-  SELECT
-    a.*,
-    b.ActUser_PersonID,
-    b.ActUser_StoreID
-  FROM TASK1 a
-    LEFT JOIN USER b
-      ON a.CreatedById = b.CreatedById
-),
-/* in sas: CAMPAIGN_LASTID */
-CAMPAIGN AS (
-	SELECT DISTINCT
-		Code__c,
-		Id AS CampaignID
-	FROM ${ref('M14_Campaign')}
-),
-TASK3_0 AS (
-    /*
-    there are several cases to handle:
-    1. HistoryKey with '_' as delimiter, it takes the second and the third part
-    2. HistoryKey with '-' as delimiter, it takes the second part
-    3. HistoryKey null, it does nothing
-    4. HistoryKey likes 'TESTHK125' and 'TESTHK124', it does nothing because they are tests
-    */
-    WITH A AS (
-        SELECT
-            a.*,
-            CONCAT(SPLIT(HistoryKey,'_')[OFFSET(1)],'_',SPLIT(HistoryKey,'_')[OFFSET(2)]) AS KEY
-        FROM TASK2 a
-        WHERE HistoryKey NOT LIKE '%-%' AND HistoryKey <> ''  AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
-        ----
-        UNION ALL 
-        ----
-        SELECT
-            a.*,
-            SPLIT(HistoryKey,'-')[OFFSET(1)] AS KEY 
-        FROM TASK2 a
-        WHERE HistoryKey LIKE '%-%' AND HistoryKey <> '' AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
-        ----
-        UNION ALL
-        ----
-        SELECT
-            a.*,
-            HistoryKey AS KEY
-        FROM TASK2 a
-        WHERE HistoryKey = ''
-        ----
-        UNION ALL
-        ----
-        SELECT
-            a.*,
-            HistoryKey as KEY
-        FROM TASK2 a
-        WHERE HistoryKey = 'TESTHK125' or HistoryKey = 'TESTHK124'
-    )
-    SELECT
-        a.*,
-        b.CampaignId
-    FROM A
-        LEFT JOIN CAMPAIGN b
-            ON KEY = COALESCE(Code__c,CampaignId)
-)
-/* in sas: TASK_FIN_NEW */
-SELECT
-    * EXCEPT(CampaignID,RN_AC,KEY),
-    CASE
-        WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
-        WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
-        WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
-        WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
-        WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
-        WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
-        WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
-        WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
-        WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
-        WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
-        WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
-        WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
-        WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
-        WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
-        WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
-        WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
-        WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
-        WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
-        ELSE CampaignID
-        END AS CampaignID,
-    CASE
-        WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
-        ELSE 1
-        END AS Consignment_Contact,
-    CASE
-        WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
-        ELSE 1
-        END AS RemoteSelling_Contact,
-    CASE
-        WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
-        ELSE 1
-        END AS Consignment_Activities,
-    CASE
-        WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
-        ELSE 1
-        END AS Remote_Activities
-FROM TASK3_0
+-- ),
+-- /* it adds some M13_USER fields into the TASK1 table */
+-- TASK2 AS (
+--   SELECT
+--     a.*,
+--     b.ActUser_PersonID,
+--     b.ActUser_StoreID
+--   FROM TASK1 a
+--     LEFT JOIN USER b
+--       ON a.CreatedById = b.CreatedById
+-- ),
+-- /* in sas: CAMPAIGN_LASTID */
+-- CAMPAIGN AS (
+-- 	SELECT DISTINCT
+-- 		Code__c,
+-- 		Id AS CampaignID
+-- 	FROM ${ref('M14_Campaign')}
+-- ),
+-- TASK3_0 AS (
+--     /*
+--     there are several cases to handle:
+--     1. HistoryKey with '_' as delimiter, it takes the second and the third part
+--     2. HistoryKey with '-' as delimiter, it takes the second part
+--     3. HistoryKey null, it does nothing
+--     4. HistoryKey likes 'TESTHK125' and 'TESTHK124', it does nothing because they are tests
+--     */
+--     WITH A AS (
+--         SELECT
+--             a.*,
+--             CONCAT(SPLIT(HistoryKey,'_')[OFFSET(1)],'_',SPLIT(HistoryKey,'_')[OFFSET(2)]) AS KEY
+--         FROM TASK2 a
+--         WHERE HistoryKey NOT LIKE '%-%' AND HistoryKey <> ''  AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+--         ----
+--         UNION ALL 
+--         ----
+--         SELECT
+--             a.*,
+--             SPLIT(HistoryKey,'-')[OFFSET(1)] AS KEY 
+--         FROM TASK2 a
+--         WHERE HistoryKey LIKE '%-%' AND HistoryKey <> '' AND HistoryKey <> 'TESTHK125' AND HistoryKey <> 'TESTHK124'
+--         ----
+--         UNION ALL
+--         ----
+--         SELECT
+--             a.*,
+--             HistoryKey AS KEY
+--         FROM TASK2 a
+--         WHERE HistoryKey = ''
+--         ----
+--         UNION ALL
+--         ----
+--         SELECT
+--             a.*,
+--             HistoryKey as KEY
+--         FROM TASK2 a
+--         WHERE HistoryKey = 'TESTHK125' or HistoryKey = 'TESTHK124'
+--     )
+--     SELECT
+--         a.*,
+--         b.CampaignId
+--     FROM A
+--         LEFT JOIN CAMPAIGN b
+--             ON KEY = COALESCE(Code__c,CampaignId)
+-- )
+-- /* in sas: TASK_FIN_NEW */
+-- SELECT
+--     * EXCEPT(CampaignID,RN_AC,KEY),
+--     CASE
+--         WHEN subject = 'Eid Al-Fitr' then COALESCE(CampaignID,'7012o000001ufefAAA')
+--         WHEN subject = 'Ramadan Kareem' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+--         WHEN subject = 'Ramadan Kareem + E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001ufefAAA')
+--         WHEN subject = 'Caring for Excellence' THEN COALESCE(CampaignID,'7012o000001ufhlAAA')
+--         WHEN subject = 'Consignment' THEN COALESCE(CampaignID,'7012o000001ug6RAAQ')
+--         WHEN subject = 'CSR Campaign' THEN COALESCE(CampaignID,'7012o000001ufeeAAA')
+--         WHEN subject = 'E-Advisors Introduction to E-commerce Clients' THEN COALESCE(CampaignID,'7012o000001uffnAAA')
+--         WHEN subject = 'Eid al-Adha' THEN COALESCE(CampaignID,'7012o000001ufhkAAA')
+--         WHEN subject = 'Ginza Opening' THEN COALESCE(CampaignID,'7012o000001uff5AAA')
+--         WHEN subject = 'MTO 360' THEN COALESCE(CampaignID,'7012o000001ufgaAAA')
+--         WHEN subject = 'Pouch family' THEN COALESCE(CampaignID,'7012o000001ug5EAAQ')
+--         WHEN subject = 'Qatar E-Shop Opening' THEN COALESCE(CampaignID,'7012o000001uffHAAQ')
+--         WHEN subject = 'SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+--         WHEN subject = 'Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ueizAAA')
+--         WHEN subject = 'North America - SS20 Digital Estratto Fotografico' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+--         WHEN subject = 'North America - Selected Outfits' THEN COALESCE(CampaignID,'7012o000001ufgmAAA')
+--         WHEN subject = 'Summer Dresses' THEN COALESCE(CampaignID,'7012o000001ufCfAAI')
+--         WHEN subject = 'North America - Wellness Check-In Campaign' THEN COALESCE(CampaignID,'7012o000001ufgIAAQ')
+--         ELSE CampaignID
+--         END AS CampaignID,
+--     CASE
+--         WHEN ConsignmentFirstStatusUpdate IS NULL THEN 0
+--         ELSE 1
+--         END AS Consignment_Contact,
+--     CASE
+--         WHEN RemoteSellingFirstStatusUpdate IS NULL THEN 0
+--         ELSE 1
+--         END AS RemoteSelling_Contact,
+--     CASE
+--         WHEN ConsignmentSecondStatusUpdate IS NULL THEN 0
+--         ELSE 1
+--         END AS Consignment_Activities,
+--     CASE
+--         WHEN RemoteSellingSecondStatusUpdate IS NULL THEN 0
+--         ELSE 1
+--         END AS Remote_Activities
+-- FROM TASK3_0
 
-UNION ALL
+-- UNION ALL
 
-SELECT
-AccountId,
-ActivityDate,
-CheckInMissedPurchase__c as CheckInMissedPurchase,
-CheckInStore__r_TaxiShopCode__c as CheckInStore_TaxiShopCode,
-ClientelingList__c as CLIENTELINGLIST,
-CAST(ContactedThroughGaisho__c AS STRING)  as ContactedThroughGaisho,
-Campaign__c as Campaign,
-ConsignmentFirstStatusUpdate__c as ConsignmentFirstStatusUpdate,
-ConsignmentSecondStatusUpdate__ as ConsignmentSecondStatusUpdate,
-ConsignmentStatus__c as ConsignmentStatus,
-CAST(Consignment__c AS STRING) as Consignment,
-CAST(ContactCommunicationOk__c AS STRING) as ContactCommunicationOk,
-ContactCommunication__c as ContactCommunication,
-ContactRolId__c as ContactRolId,
-CAST(ContactedThroughConcierge__c AS STRING) as ContactedThroughConcierge,
-CreatedById,
-createddate as CreatedDate,
-CAST(EventConfirmation__c AS STRING) as EventConfirmation,
-CAST(EndDateTime__c AS TIMESTAMP) as EndDateTime,
-ExperienceRating__c as ExperienceRating,
-HistoryKey,
-Id,
-JKIndividualEmailResult__c as JKIndividualEmailResult,
-LastModifiedById,
-LastModifiedDate,
-MagNewsTemplate__c as MagNewsTemplate,
-OwnerId,
-Paper_Catalog_extract__c,
-RecordTypeId,
-RemoteSellingFirstStatusUpdate_ as RemoteSellingFirstStatusUpdate,
-RemoteSellingSecondStatusUpdate,
-RemoteSellingStatus__c as RemoteSellingStatus,
-CAST(RemoteSelling__c AS STRING) as RemoteSelling,
-CAST(StartDateTime__c AS TIMESTAMP) as StartDateTime,
-Status,
-Subject,
-Subtext__c as Subtext,
-WhoId,
-CAST(isFullDay__c AS STRING) as isFullDay,
-CAST(newHistoryKey__c AS STRING) as newHistoryKey,
-Type as TYPE,
-Macro_type AS MACRO_TYPE,
-Description,
-PersonId__c as ActUser_PersonID,
-Active_Store_ID as ActUser_StoreID,
-CampaignID,
-Consignment_Contact,
-RemoteSelling_Contact,
-Consignment_Activities,
-Remote_Activities
-FROM
-`lp-datalake-prod.SF_Trasformation.M14_Task_qlik_archiviati`
+-- SELECT
+-- AccountId,
+-- ActivityDate,
+-- CheckInMissedPurchase__c as CheckInMissedPurchase,
+-- CheckInStore__r_TaxiShopCode__c as CheckInStore_TaxiShopCode,
+-- ClientelingList__c as CLIENTELINGLIST,
+-- CAST(ContactedThroughGaisho__c AS STRING)  as ContactedThroughGaisho,
+-- Campaign__c as Campaign,
+-- ConsignmentFirstStatusUpdate__c as ConsignmentFirstStatusUpdate,
+-- ConsignmentSecondStatusUpdate__ as ConsignmentSecondStatusUpdate,
+-- ConsignmentStatus__c as ConsignmentStatus,
+-- CAST(Consignment__c AS STRING) as Consignment,
+-- CAST(ContactCommunicationOk__c AS STRING) as ContactCommunicationOk,
+-- ContactCommunication__c as ContactCommunication,
+-- ContactRolId__c as ContactRolId,
+-- CAST(ContactedThroughConcierge__c AS STRING) as ContactedThroughConcierge,
+-- CreatedById,
+-- createddate as CreatedDate,
+-- CAST(EventConfirmation__c AS STRING) as EventConfirmation,
+-- CAST(EndDateTime__c AS TIMESTAMP) as EndDateTime,
+-- ExperienceRating__c as ExperienceRating,
+-- HistoryKey,
+-- Id,
+-- JKIndividualEmailResult__c as JKIndividualEmailResult,
+-- LastModifiedById,
+-- LastModifiedDate,
+-- MagNewsTemplate__c as MagNewsTemplate,
+-- OwnerId,
+-- Paper_Catalog_extract__c,
+-- RecordTypeId,
+-- RemoteSellingFirstStatusUpdate_ as RemoteSellingFirstStatusUpdate,
+-- RemoteSellingSecondStatusUpdate,
+-- RemoteSellingStatus__c as RemoteSellingStatus,
+-- CAST(RemoteSelling__c AS STRING) as RemoteSelling,
+-- CAST(StartDateTime__c AS TIMESTAMP) as StartDateTime,
+-- Status,
+-- Subject,
+-- Subtext__c as Subtext,
+-- WhoId,
+-- CAST(isFullDay__c AS STRING) as isFullDay,
+-- CAST(newHistoryKey__c AS STRING) as newHistoryKey,
+-- Type as TYPE,
+-- Macro_type AS MACRO_TYPE,
+-- Description,
+-- PersonId__c as ActUser_PersonID,
+-- Active_Store_ID as ActUser_StoreID,
+-- CampaignID,
+-- Consignment_Contact,
+-- RemoteSelling_Contact,
+-- Consignment_Activities,
+-- Remote_Activities
+-- FROM
+-- `lp-datalake-prod.SF_Trasformation.M14_Task_qlik_archiviati`
 
